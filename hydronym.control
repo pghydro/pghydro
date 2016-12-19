@@ -1,0 +1,7 @@
+# hydronym extension
+comment = 'hydronym  extension'
+default_version = '5.4'
+encoding = 'latin1'
+requires = 'plpgsql'
+requires = 'postgis'
+requires = 'pghydro'
