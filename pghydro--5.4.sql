@@ -31,7 +31,7 @@
 -----------------------------
 --BEGIN;
 
-DROP SCHEMA IF EXISTS pghydro;
+DROP SCHEMA IF EXISTS pghydro CASCADE;
 
 CREATE SCHEMA pghydro;
 
