@@ -31,6 +31,8 @@
 -----------------------------
 --BEGIN;
 
+DROP SCHEMA IF EXISTS pghydro;
+
 CREATE SCHEMA pghydro;
 
 CREATE TABLE pghydro.pghft_shoreline (
