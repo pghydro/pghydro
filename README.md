@@ -7,14 +7,6 @@ PgHydro extends the PostGIS/PostgreSQL geospatial database to provide drainage n
 
 The master branch reflects the current 5.4 release. The develop branch reflects the 5.5-dev
 
-# LINKS
-
-http://pghydro.org/
-
-http://pghydro.org/documentation/
-
-http://pghydro.org/downloads/
-
 # INTRODUCTION
 
 PgHydro extends the PostGIS/PostgreSQL geospatial database to provide drainage network analysis functionality to support decision making in Water Resources.
