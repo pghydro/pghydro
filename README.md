@@ -15,9 +15,9 @@ Hydrographic objects are all  tables, constrains, procedures, queries, functions
 
 # REQUIREMENTS
 
-Postgresql version >= 9.1
+Postgresql version = postgresql-9.3.5-3-windows-x64
 
-PostGIS version >= 2.0
+PostGIS version = postgis-bundle-pg93x64-setup-2.1.4-1
 
 ## INSTALLATION
 
