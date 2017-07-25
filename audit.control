@@ -1,7 +1,0 @@
-# pghydro audit extension
-comment = 'pghydro audit extension'
-default_version = '4.1'
-encoding = 'latin1'
-requires = 'plpgsql'
-requires = 'postgis'
-requires = 'pghydro'
