@@ -5,7 +5,7 @@ PgHydro extends the PostGIS/PostgreSQL geospatial database to provide drainage n
 
 ## Branches
 
-The master branch reflects the current 6.0 release. The develop branch reflects the 6.1-dev
+The master branch reflects the future next release.
 
 # INTRODUCTION
 
@@ -23,7 +23,9 @@ PostGIS version = postgis-bundle-pg93x64-setup-2.1.4-1
 
 ## INSTALLATION
 
-Copy the content of extension directory to \PostgreSQL\x.x\share\extension
+Download the files below and copy the content of extension directory to \PostgreSQL\x.x\share\extension
+
+()
 
 Postgresql 9.1+
 
