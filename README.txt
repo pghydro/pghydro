@@ -1,3 +1,1 @@
-Copiar o conteúdo dessa pasta para:
-
-\PostgreSQL\x.x\share\extension
+Copy the content of extension directory to \PostgreSQL\x.x\share\extension
