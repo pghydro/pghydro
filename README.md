@@ -1,4 +1,4 @@
-# PGHYDRO Extension for PostgreSQL/PostGIS
+# PGHYDRO - PostgreSQL/PostGIS extension for Water Resources Decision Making
 PgHydro extends the PostGIS/PostgreSQL geospatial database to provide drainage network analysis functionality to support decision making in Water Resources.
 
 # STATUS
