@@ -21,7 +21,7 @@ Postgresql version = postgresql-9.3.5-3-windows-x64
 PostGIS version = postgis-bundle-pg93x64-setup-2.1.4-1
 (https://drive.google.com/file/d/0B2u6WhefYxhZdTIyVlRBWllPeXc/view?usp=sharing)
 
-## INSTALLATION
+## INSTALLATION (v.6.0)
 
 Download the files below and copy the content to \PostgreSQL\x.x\share\extension
 
