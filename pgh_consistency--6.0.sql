@@ -285,9 +285,9 @@ $$
 $$
 LANGUAGE PLPGSQL;
 
-----------------------------------------------------------------
+---------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_MakeSnapToGridDrainageLine(numeric)
-----------------------------------------------------------------
+---------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_MakeSnapToGridDrainageLine(numeric)
 RETURNS character varying AS
@@ -305,9 +305,9 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_MakeSnapToGridDrainageLine(0.000000000001);
 
----------------------------------------------------------------
+-------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_RemoveReapetedPointsDrainageLine()
----------------------------------------------------------------
+-------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_RemoveReapetedPointsDrainageLine()
 RETURNS character varying AS
@@ -325,20 +325,33 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_RemoveReapetedPointsDrainageLine();
 
----------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_CreateDrainageLineVertexIntersections(numeric)
----------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_CreateDrainageLineVertexIntersections(numeric)
 RETURNS character varying AS
 $$
+DECLARE 
+
+time_ timestamp;
+
 BEGIN
 
+time_ := timeofday();
+RAISE NOTICE 'BEGIN OF PROCESS IN : %', time_;
+
 --Create Vertex on intersection lines
+
+time_ := timeofday();
+RAISE NOTICE 'BEGIN OF PROCESS 1 : %', time_;
 
 DROP INDEX IF EXISTS pghydro.drn_gm_idx;
 
 CREATE INDEX drn_gm_idx ON pghydro.pghft_drainage_line USING GIST(drn_gm);
+
+time_ := timeofday();
+RAISE NOTICE 'BEGIN OF PROCESS 2 : %', time_;
 
 UPDATE pghydro.pghft_drainage_line drn
 SET drn_gm = ST_MULTI(ST_SNAP(drn.drn_gm, a.drp_gm, $1))
@@ -379,7 +392,13 @@ GROUP BY drn_pk_a
 ) as a
 WHERE a.drn_pk_a = drn.drn_pk;
 
+time_ := timeofday();
+RAISE NOTICE 'BEGIN OF PROCESS 3 : %', time_;
+
 DROP INDEX IF EXISTS pghydro.drn_gm_idx;
+
+time_ := timeofday();
+RAISE NOTICE 'END OF PROCESS IN : %', time_;
 
 RETURN 'OK';
 
@@ -389,20 +408,33 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_CreateDrainageLineVertexIntersections(0.000000000001);
 
-------------------------------------------------
+----------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_BreakDrainageLine()
-------------------------------------------------
+----------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_BreakDrainageLine()
 RETURNS character varying AS
 $$
+DECLARE 
+
+time_ timestamp;
+
 BEGIN
+
+time_ := timeofday();
+RAISE NOTICE 'BEGIN OF PROCESS IN : %', time_;
+
+time_ := timeofday();
+RAISE NOTICE 'BEGIN OF PROCESS 1 : %', time_;
 
 --Break Lines
 
 DROP INDEX IF EXISTS pghydro.drn_gm_idx;
 
 CREATE INDEX drn_gm_idx ON pghydro.pghft_drainage_line USING GIST(drn_gm);
+
+time_ := timeofday();
+RAISE NOTICE 'BEGIN OF PROCESS 2 : %', time_;
 
 UPDATE pghydro.pghft_drainage_line drn
 SET drn_gm = pgh_consistency.pghfn_SplitDrainagelineMultipoint(drn.drn_gm, a.drp_gm)
@@ -445,9 +477,15 @@ GROUP BY drn_pk_a
 ) as a
 WHERE a.drn_pk_a = drn.drn_pk;
 
+time_ := timeofday();
+RAISE NOTICE 'BEGIN OF PROCESS 1 : %', time_;
+
 DROP INDEX IF EXISTS pghydro.drn_gm_idx;
 
 RETURN 'OK';
+
+time_ := timeofday();
+RAISE NOTICE 'END OF PROCESS IN : %', time_;
 
 END;
 $$

@@ -172,14 +172,11 @@ drn.drn_nu_distancetosea as nudistbact,
 drn.drn_nu_distancetowatercourse as nudistcdag,
 dra.dra_gm_area as nuareacont,
 drn.drn_nu_upstreamarea as nuareamont,
---hdr.hdr_cd as corio,
 tng.tng_ds as nogenerico,
 tcn.tcn_ds as noligacao,
 tns.tns_ds as noespecif,
 tnc.tnc_ds as noriocomp,
 drn.drn_nm as nooriginal,
---hdr.hdr_gm_length as nucomprio,
---hdr.hdr_nu_distancetosea as nudistbacr,
 wtc.wtc_cd_pfafstetterwatercourse_downstream as cocdadesag,
 drn.drn_drn_pk_downstreamdrainageline as nutrjus,
 wtc.wtc_nu_distancetosea as nudistbacc,
@@ -195,7 +192,6 @@ drn_gm
 FROM pghydro.pghft_drainage_line drn
 INNER JOIN pghydro.pghft_drainage_area dra ON drn.drn_dra_pk = dra.dra_pk
 FULL OUTER JOIN pghydro.pghft_watercourse wtc ON drn.drn_wtc_pk = wtc.wtc_pk
---FULL OUTER JOIN pghydro.pghft_hydronym hdr ON drn.drn_hdr_pk = hdr.hdr_pk
 FULL OUTER JOIN pghydro.pghtb_type_name_complete tnc ON drn.drn_tnc_pk = tnc.tnc_pk
 FULL OUTER JOIN pghydro.pghtb_type_name_generic tng ON tnc.tnc_tng_pk = tng.tng_pk
 FULL OUTER JOIN pghydro.pghtb_type_name_connection tcn ON tnc.tnc_tcn_pk = tcn.tcn_pk
@@ -275,7 +271,7 @@ tdm.tdm_ds as dedominial,
 'BHO '||current_database()||' de '||CURRENT_DATE::text as dsversao,
 wtc.wtc_gm
 FROM pghydro.pghft_watercourse wtc
-FULL OUTER JOIN pghydro.pghtb_type_domain tdm ON tdm.tdm_pk = wtc.wtc_tdm_pk;
+LEFT OUTER JOIN pghydro.pghtb_type_domain tdm ON tdm.tdm_pk = wtc.wtc_tdm_pk;
 
 time_ := timeofday();
 RAISE NOTICE 'BEGIN OF PROCESS 4 : %', time_;    
