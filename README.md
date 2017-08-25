@@ -27,7 +27,7 @@ PostGIS version = postgis-bundle-pg93x64-setup-2.1.4-1
 
 Download the files below and copy the content to \PostgreSQL\x.x\share\extension
 
-(https://drive.google.com/drive/folders/0B2u6WhefYxhZNTIyMXdFaFhqOVk?usp=sharing)
+(https://drive.google.com/drive/folders/0B2u6WhefYxhZR1QyY24wYUV6WnM?usp=sharing)
 
 Postgresql 9.1+
 
