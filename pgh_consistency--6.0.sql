@@ -17,9 +17,9 @@
 
 --REQUIREMENTS
 
---Postgresql version >= 9.1
---PostGIS version >= 2.0
---PgHydro version >=6.0
+--Postgresql version 9.1+
+--PostGIS version 2.0+
+--PgHydro version 6.0.1
 
 ---------------------------------------------------------------------------------
 --Pfafstetter Consistency Extension Version 6.0.1 of xx/xx/xxxx
@@ -37,13 +37,13 @@ CREATE SCHEMA pgh_consistency;
 --CREATE CONSISTENCY TABLES
 -----------------------------
 
-CREATE TABLE pgh_consistency.pghft_drainageareahaveselfintersection
+CREATE TABLE pgh_consistency.pghft_drainageareaoverlapdrainagearea
 (
   id bigint NOT NULL,
   int_pk bigint,
   editor bigint,
   cn01_gm geometry(MultiPolygon),
-  CONSTRAINT pghft_drainageareahaveselfintersection_pkey PRIMARY KEY (id)
+  CONSTRAINT pghft_drainageareaoverlapdrainagearea_pkey PRIMARY KEY (id)
 );
 
 CREATE TABLE pgh_consistency.pghft_drainageareaisnotsimple
@@ -1786,11 +1786,11 @@ $$
 LANGUAGE SQL;
 
 
----------------------------------------------------------------
---FUNCTION pgh_consistency.pghfn_DrainageAreaHaveSelfIntersection()
----------------------------------------------------------------
+------------------------------------------------------------------
+--FUNCTION pgh_consistency.pghfn_DrainageAreaOverlapDrainageArea()
+------------------------------------------------------------------
 
-CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_DrainageAreaHaveSelfIntersection()
+CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_DrainageAreaOverlapDrainageArea()
 RETURNS TABLE(int_pk_ bigint, dra_pk_a_ integer, dra_pk_b_ integer, dra_gm_a_ geometry, dra_gm_b_ geometry, int_gm_ geometry)
 AS
 $$
@@ -1815,30 +1815,30 @@ END;
 $$
 LANGUAGE PLPGSQL;
 
---SELECT pgh_consistency.pghfn_DrainageAreaHaveSelfIntersection();
+--SELECT pgh_consistency.pghfn_DrainageAreaOverlapDrainageArea();
 
-------------------------------------------------------------------
---FUNCTION pgh_consistency.pghfn_numDrainageAreaHaveSelfIntersection()
-------------------------------------------------------------------
+---------------------------------------------------------------------
+--FUNCTION pgh_consistency.pghfn_numDrainageAreaOverlapDrainageArea()
+---------------------------------------------------------------------
 
-CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_numDrainageAreaHaveSelfIntersection()
+CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_numDrainageAreaOverlapDrainageArea()
 RETURNS bigint AS
 $$
 SELECT count(int_pk)
 FROM
 (
-SELECT (pghfn_DrainageAreaHaveSelfIntersection).int_pk_ as int_pk
-FROM pgh_consistency.pghfn_DrainageAreaHaveSelfIntersection()
+SELECT (pghfn_DrainageAreaOverlapDrainageArea).int_pk_ as int_pk
+FROM pgh_consistency.pghfn_DrainageAreaOverlapDrainageArea()
 ) as a;
 $$
 LANGUAGE SQL;
 
 
---SELECT pgh_consistency.pghfn_numDrainageAreaHaveSelfIntersection();
+--SELECT pgh_consistency.pghfn_numDrainageAreaOverlapDrainageArea();
 
---------------------------------------------------------
+------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_RemoveDrainageAreaOverlap()
---------------------------------------------------------
+------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_RemoveDrainageAreaOverlap()
 RETURNS character varying AS
@@ -1853,8 +1853,8 @@ UPDATE pghydro.pghft_drainage_area dra
 SET dra_gm = ST_MULTI(ST_CollectionExtract(ST_Difference(dra.dra_gm, a.dra_gm), 3))
 FROM
 (
-SELECT (pghfn_DrainageAreaHaveSelfIntersection).dra_pk_a_ as dra_pk_a, (pghfn_DrainageAreaHaveSelfIntersection).dra_pk_b_ as dra_pk_b, (pghfn_DrainageAreaHaveSelfIntersection).dra_gm_b_ as dra_gm
-FROM pgh_consistency.pghfn_DrainageAreaHaveSelfIntersection()
+SELECT (pghfn_DrainageAreaOverlapDrainageArea).dra_pk_a_ as dra_pk_a, (pghfn_DrainageAreaOverlapDrainageArea).dra_pk_b_ as dra_pk_b, (pghfn_DrainageAreaOverlapDrainageArea).dra_gm_b_ as dra_gm
+FROM pgh_consistency.pghfn_DrainageAreaOverlapDrainageArea()
 ) as a
 WHERE a.dra_pk_a = dra.dra_pk;
 
@@ -2845,9 +2845,9 @@ END;
 $$
 LANGUAGE PLPGSQL;
 
--------------------------------------------------------------------------
+------------------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_UpdateDrainageAreaConsistencyTopologyTables()
--------------------------------------------------------------------------
+------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_UpdateDrainageAreaConsistencyTopologyTables()
 RETURNS character varying AS
@@ -2857,13 +2857,13 @@ time_ timestamp;
 
 BEGIN
 
---TABLE pgh_consistency.pghft_DrainageAreaHaveSelfIntersection
+--TABLE pgh_consistency.pghft_DrainageAreaOverlapDrainageArea
 
-TRUNCATE pgh_consistency.pghft_DrainageAreaHaveSelfIntersection;
+TRUNCATE pgh_consistency.pghft_DrainageAreaOverlapDrainageArea;
 
-INSERT INTO pgh_consistency.pghft_DrainageAreaHaveSelfIntersection
-SELECT row_number() OVER () as id, (pghfn_DrainageAreaHaveSelfIntersection).int_pk_ as int_pk, (row_number() OVER () - 1) % 10 + 1 as editor, (pghfn_DrainageAreaHaveSelfIntersection).int_gm_ as int_gm
-FROM pgh_consistency.pghfn_DrainageAreaHaveSelfIntersection();
+INSERT INTO pgh_consistency.pghft_DrainageAreaOverlapDrainageArea
+SELECT row_number() OVER () as id, (pghfn_DrainageAreaOverlapDrainageArea).int_pk_ as int_pk, (row_number() OVER () - 1) % 10 + 1 as editor, (pghfn_DrainageAreaOverlapDrainageArea).int_gm_ as int_gm
+FROM pgh_consistency.pghfn_DrainageAreaOverlapDrainageArea();
 
 --TABLE pgh_consistency.pghft_DrainageAreaWithinDrainageArea
 
