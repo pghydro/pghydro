@@ -17,9 +17,9 @@
 
 --REQUIREMENTS
 
---Postgresql version >= 9.1
---PostGIS version >= 2.0
---PgHydro version >=6.0
+--Postgresql version 9.1+
+--PostGIS version 2.0+
+--PgHydro version 6.0.1
 
 ---------------------------------------------------------------------------------
 --PgHydro Output Extension Version 6.0.1 of xx/xx/xxxx

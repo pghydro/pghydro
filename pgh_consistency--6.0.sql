@@ -43,6 +43,8 @@ CREATE TABLE pgh_consistency.pghft_drainageareaoverlapdrainagearea
   int_pk bigint,
   editor bigint,
   cn01_gm geometry(MultiPolygon),
+  dra_gm_a geometry(MultiPolygon),
+  dra_gm_b geometry(MultiPolygon),
   CONSTRAINT pghft_drainageareaoverlapdrainagearea_pkey PRIMARY KEY (id)
 );
 
@@ -535,9 +537,9 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_RemoveReapetedPointsDrainageArea();
 
------------------------------------------------------
+---------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_MakeDrainageAreaSimple()
------------------------------------------------------
+---------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_MakeDrainageAreaSimple()
 RETURNS character varying AS
@@ -556,9 +558,9 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_MakeDrainageAreaSimple();
 
-----------------------------------------------------
+--------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_MakeDrainageAreaValid()
-----------------------------------------------------
+--------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_MakeDrainageAreaValid()
 RETURNS character varying AS
@@ -1182,9 +1184,9 @@ $$
 LANGUAGE SQL;
 
 
--------------------------------------------------------------------
+-----------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_DeleteDrainageLineWithinDrainageLine()
--------------------------------------------------------------------
+-----------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_DeleteDrainageLineWithinDrainageLine()
 RETURNS character varying AS
@@ -1197,14 +1199,9 @@ BEGIN
 DELETE FROM pghydro.pghft_drainage_line
 WHERE drn_pk IN
 (
-SELECT (pghfn_DrainageLineWithinDrainageLine).drn_pk_ as drn_pk
-FROM pgh_consistency.pghfn_DrainageLineWithinDrainageLine()
+SELECT drn_pk 
+FROM pgh_consistency.pghft_drainagelinewithindrainageline
 );
-
-RETURN 'OK';
-
-time_ := timeofday();
-RAISE NOTICE 'END OF PROCESS IN : %', time_;
 
 RETURN 'OK';
 
@@ -1843,22 +1840,36 @@ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_RemoveDrainageAreaOverlap()
 RETURNS character varying AS
 $$
+DECLARE
+
+_r record;
+time_ timestamp;
+max_id integer;
+i integer;
+
 BEGIN
 
-DROP INDEX IF EXISTS pghydro.dra_gm_idx;
+SELECT INTO max_id count(id) FROM pgh_consistency.pghft_drainageareaoverlapdrainagearea;
 
-CREATE INDEX dra_gm_idx ON pghydro.pghft_drainage_area USING GIST(dra_gm);
+i := 1;
 
-UPDATE pghydro.pghft_drainage_area dra
-SET dra_gm = ST_MULTI(ST_CollectionExtract(ST_Difference(dra.dra_gm, a.dra_gm), 3))
-FROM
-(
-SELECT (pghfn_DrainageAreaOverlapDrainageArea).dra_pk_a_ as dra_pk_a, (pghfn_DrainageAreaOverlapDrainageArea).dra_pk_b_ as dra_pk_b, (pghfn_DrainageAreaOverlapDrainageArea).dra_gm_b_ as dra_gm
-FROM pgh_consistency.pghfn_DrainageAreaOverlapDrainageArea()
-) as a
-WHERE a.dra_pk_a = dra.dra_pk;
+time_ := timeofday();
+RAISE NOTICE 'BEGIN OF PROCESS IN : %', time_;
 
-DROP INDEX IF EXISTS pghydro.dra_gm_idx;
+time_ := timeofday();
+RAISE NOTICE 'BEGIN OF PROCESS 1 : %', time_;
+
+    FOR _r IN SELECT id FROM pgh_consistency.pghft_drainageareaoverlapdrainagearea
+    
+    LOOP
+
+	PERFORM pgh_consistency.pghfn_removedrainageareaoverlaps(_r.id::integer);
+   
+    RAISE NOTICE 'Overlap %/%', i, max_id;    
+
+    i := i + 1;
+
+    END LOOP;
 
 RETURN 'OK';
 
@@ -1867,6 +1878,31 @@ $$
 LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_RemoveDrainageAreaOverlap();
+
+------------------------------------------------------------
+--FUNCTION pgh_consistency.pghfn_RemoveDrainageAreaOverlaps()
+------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_removedrainageareaoverlaps(integer)
+RETURNS void AS
+$$
+DECLARE
+
+BEGIN
+
+UPDATE pghydro.pghft_drainage_area dra
+SET dra_gm = ST_MULTI(ST_CollectionExtract(ST_Difference(dra.dra_gm, a.dra_gm), 3))
+FROM
+(
+SELECT dra_pk_a, dra_gm_b as dra_gm
+FROM pgh_consistency.pghft_drainageareaoverlapdrainagearea
+WHERE id = $1
+) as a
+WHERE a.dra_pk_a = dra.dra_pk;
+
+END;
+$$
+LANGUAGE PLPGSQL;
 
 -------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_DrainageAreaWithinDrainageArea()
@@ -1931,27 +1967,21 @@ $$
 LANGUAGE SQL;
 
 
--------------------------------------------------------------------
+-----------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_DeleteDrainageAreaWithinDrainageArea()
--------------------------------------------------------------------
+-----------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_DeleteDrainageAreaWithinDrainageArea()
 RETURNS character varying AS
 $$
 BEGIN
 
-DROP INDEX IF EXISTS pghydro.dra_gm_idx;
-
-CREATE INDEX dra_gm_idx ON pghydro.pghft_drainage_area USING GIST(dra_gm);
-
 DELETE FROM pghydro.pghft_drainage_area
 WHERE dra_pk IN
 (
-SELECT (pghfn_DrainageAreaWithinDrainageArea).dra_pk_ as dra_pk
-FROM pgh_consistency.pghfn_DrainageAreaWithinDrainageArea()
+SELECT dra_pk 
+FROM pgh_consistency.pghft_drainageareawithindrainagearea
 );
-
-DROP INDEX IF EXISTS pghydro.dra_gm_idx;
 
 RETURN 'OK';
 
@@ -2862,7 +2892,7 @@ BEGIN
 TRUNCATE pgh_consistency.pghft_DrainageAreaOverlapDrainageArea;
 
 INSERT INTO pgh_consistency.pghft_DrainageAreaOverlapDrainageArea
-SELECT row_number() OVER () as id, (pghfn_DrainageAreaOverlapDrainageArea).int_pk_ as int_pk, (row_number() OVER () - 1) % 10 + 1 as editor, (pghfn_DrainageAreaOverlapDrainageArea).int_gm_ as int_gm
+SELECT row_number() OVER () as id, (pghfn_DrainageAreaOverlapDrainageArea).int_pk_ as int_pk, (row_number() OVER () - 1) % 10 + 1 as editor, (pghfn_DrainageAreaOverlapDrainageArea).int_gm_ as int_gm, (pghfn_DrainageAreaOverlapDrainageArea).dra_gm_a_ as dra_gm_a, (pghfn_DrainageAreaOverlapDrainageArea).dra_gm_b_ as dra_gm_b
 FROM pgh_consistency.pghfn_DrainageAreaOverlapDrainageArea();
 
 --TABLE pgh_consistency.pghft_DrainageAreaWithinDrainageArea
