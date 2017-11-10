@@ -45,6 +45,7 @@ CREATE TABLE pgh_consistency.pghft_drainageareaoverlapdrainagearea
   cn01_gm geometry(MultiPolygon),
   dra_gm_a geometry(MultiPolygon),
   dra_gm_b geometry(MultiPolygon),
+  area numeric,
   CONSTRAINT pghft_drainageareaoverlapdrainagearea_pkey PRIMARY KEY (id)
 );
 
@@ -91,6 +92,7 @@ CREATE TABLE pgh_consistency.pghft_drainageareanodrainageline
   dra_pk integer,
   editor bigint,
   cn07_gm geometry(MultiPolygon),
+  area numeric,
   CONSTRAINT pghft_drainageareanodrainageline_pkey PRIMARY KEY (id)
 );
 
@@ -100,6 +102,7 @@ CREATE TABLE pgh_consistency.pghft_drainageareawithindrainagearea
   dra_pk integer,
   editor bigint,
   cn08_gm geometry(MultiPolygon),
+  area numeric,
   CONSTRAINT pghft_drainageareawithindrainagearea_pkey PRIMARY KEY (id)
 );
 
@@ -172,6 +175,7 @@ CREATE TABLE pgh_consistency.pghft_drainagelineloops
   plg_pk integer,
   editor bigint,
   cn16_gm geometry(MultiPolygon),
+  area numeric,
   CONSTRAINT pghft_drainagelineloops_pkey PRIMARY KEY (id)
 );
 
@@ -247,9 +251,9 @@ CREATE TABLE pgh_consistency.pghft_pointdivergent
   CONSTRAINT pghft_pointdivergent_pkey PRIMARY KEY (id)
 );
 
----------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_SplitDrainagelineMultipoint(input_geom geometry, blade geometry)
----------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_SplitDrainagelineMultipoint(input_geom geometry, blade geometry)
   RETURNS geometry AS
@@ -497,9 +501,9 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_ExplodeDrainageLine();
 
-----------------------------------------------------------------
+--------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_MakeSnapToGridDrainageArea(numeric)
-----------------------------------------------------------------
+--------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_MakeSnapToGridDrainageArea(numeric)
 RETURNS character varying AS
@@ -517,9 +521,9 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_MakeSnapToGridDrainageArea(numeric);
 
----------------------------------------------------------------
+-------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_RemoveReapetedPointsDrainageArea()
----------------------------------------------------------------
+-------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_RemoveReapetedPointsDrainageArea()
 RETURNS character varying AS
@@ -579,9 +583,9 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_MakeDrainageAreaValid();
 
---------------------------------------------------------------
+------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_RemoveDrainageAreaInteriorRings()
---------------------------------------------------------------
+------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_RemoveDrainageAreaInteriorRings()
 RETURNS character varying AS
@@ -621,9 +625,9 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_RemoveWatershedInteriorRings();
 
---------------------------------------------------
+------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_ExplodeDrainageArea()
---------------------------------------------------
+------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_ExplodeDrainageArea()
 RETURNS varchar AS
@@ -729,9 +733,9 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_ExplodeDrainageArea();
 
--------------------------------------------------------------
+-----------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_RemoveInteriorRingDrainageArea()
--------------------------------------------------------------
+-----------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_RemoveInteriorRingDrainageArea()
 RETURNS character varying AS
@@ -749,9 +753,9 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_RemoveInteriorRingDrainageArea();
 
-------------------------------------------------------
+----------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_DrainageLineIsNotSingle()
-------------------------------------------------------
+----------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_DrainageLineIsNotSingle()
 RETURNS TABLE(drn_pk_ integer, drn_nm_ character varying, drn_gm_ geometry)
@@ -772,9 +776,9 @@ $$
 LANGUAGE PLPGSQL;
 
 
----------------------------------------------------------
+-------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_numDrainageLineIsNotSingle()
----------------------------------------------------------
+-------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_numDrainageLineIsNotSingle()
 RETURNS bigint AS
@@ -789,9 +793,9 @@ $$
 LANGUAGE SQL;
 
 
---------------------------------------------------
+------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_ExplodeDrainageLine()
---------------------------------------------------
+------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_ExplodeDrainageLine()
 RETURNS varchar AS
@@ -900,9 +904,9 @@ END;
 $$
 LANGUAGE PLPGSQL;
 
-------------------------------------------------------
+----------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_DrainageLineIsNotSimple()
-------------------------------------------------------
+----------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_DrainageLineIsNotSimple()
 RETURNS TABLE(drn_pk_ integer, drn_gm_ geometry)
@@ -922,9 +926,9 @@ END;
 $$
 LANGUAGE PLPGSQL;
 
----------------------------------------------------------
+-------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_numDrainageLineIsNotSimple()
----------------------------------------------------------
+-------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_numDrainageLineIsNotSimple()
 RETURNS bigint AS
@@ -938,9 +942,9 @@ FROM pgh_consistency.pghfn_DrainageLineIsNotSimple()
 $$
 LANGUAGE SQL;
 
------------------------------------------------------
+---------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_MakeDrainageLineSimple()
------------------------------------------------------
+---------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_MakeDrainageLineSimple()
 RETURNS character varying AS
@@ -964,9 +968,9 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_MakeDrainageLineSimple();
 
------------------------------------------------------
+---------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_DrainageLineIsNotValid()
------------------------------------------------------
+---------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_DrainageLineIsNotValid()
 RETURNS TABLE(drn_pk_ integer, drn_gm_ geometry, drn_gm_point_ geometry)
@@ -987,9 +991,9 @@ $$
 LANGUAGE PLPGSQL;
 
 
---------------------------------------------------------
+------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_numDrainageLineIsNotValid()
---------------------------------------------------------
+------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_numDrainageLineIsNotValid()
 RETURNS bigint AS
@@ -1004,9 +1008,9 @@ $$
 LANGUAGE SQL;
 
 
-----------------------------------------------------
+--------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_MakeDrainageLineValid()
-----------------------------------------------------
+--------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_MakeDrainageLineValid()
 RETURNS character varying AS
@@ -1030,9 +1034,10 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_MakeDrainageLineValid();
 
----------------------------------------------------------------
+-------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_DrainageLineHaveSelfIntersection()
----------------------------------------------------------------
+-------------------------------------------------------------------
+
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_DrainageLineHaveSelfIntersection()
 RETURNS TABLE(drn_pk_ integer, drn_gm_ geometry)
 AS
@@ -1104,9 +1109,9 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_DrainageLineHaveSelfIntersection()
 
-------------------------------------------------------------------
+----------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_numDrainageLineHaveSelfIntersection()
-------------------------------------------------------------------
+----------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_numDrainageLineHaveSelfIntersection()
 RETURNS bigint AS
@@ -1123,9 +1128,9 @@ LANGUAGE SQL;
 
 --SELECT pgh_consistency.pghfn_numDrainageLineHaveSelfIntersection();
 
--------------------------------------------------------------
+-----------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_DrainageLineWithinDrainageLine()
--------------------------------------------------------------
+-----------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_DrainageLineWithinDrainageLine()
 RETURNS TABLE(drn_pk_ integer, drn_gm_ geometry)
@@ -1167,9 +1172,9 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_DrainageLineWithinDrainageLine()
 
-----------------------------------------------------------------
+--------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_numDrainageLineWithinDrainageLine()
-----------------------------------------------------------------
+--------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_numDrainageLineWithinDrainageLine()
 RETURNS bigint AS
@@ -1211,9 +1216,9 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_DeleteDrainageLineWithinDrainageLine();
 
-------------------------------------------------
+----------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_DrainageLineLoops()
-------------------------------------------------
+----------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_DrainageLineLoops()
 RETURNS TABLE(plg_pk_ integer, plg_gm_ geometry)
@@ -1246,9 +1251,9 @@ $$
 LANGUAGE PLPGSQL;
 
 
-----------------------------------------------------
+--------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_numDrainageLineLoops()
-----------------------------------------------------
+--------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_numDrainageLineLoops()
 RETURNS bigint AS
@@ -1263,9 +1268,9 @@ $$
 LANGUAGE SQL;
 
 
-------------------------------------------------------------
+----------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_DrainageLineHaveGeometryEmpty()
-------------------------------------------------------------
+----------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_DrainageLineHaveGeometryEmpty()
 RETURNS TABLE(drn_pk_ integer, drn_gm_ geometry)
@@ -1290,9 +1295,9 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_DrainageLineHaveGeometryEmpty()
 
----------------------------------------------------------------
+-------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_numDrainageLineHaveGeometryEmpty()
----------------------------------------------------------------
+-------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_numDrainageLineHaveGeometryEmpty()
 RETURNS bigint AS
@@ -1307,9 +1312,9 @@ $$
 LANGUAGE SQL;
 
 
-----------------------------------------------------------------
+------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_DeleteDrainageLineGeometryEmpty()
-----------------------------------------------------------------
+------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_DeleteDrainageLineGeometryEmpty()
 RETURNS character varying AS
@@ -1333,9 +1338,9 @@ END;
 $$
 LANGUAGE PLPGSQL;
 
--------------------------------------------------
+-----------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_PointValenceValue2()
--------------------------------------------------
+-----------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_PointValenceValue2()
 RETURNS TABLE(drp_pk_ integer, drp_gm_ geometry)
@@ -1356,9 +1361,9 @@ $$
 LANGUAGE PLPGSQL;
 
 
-----------------------------------------------------
+--------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_numPointValenceValue2()
-----------------------------------------------------
+--------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_numPointValenceValue2()
 RETURNS bigint AS
@@ -1373,9 +1378,9 @@ $$
 LANGUAGE SQL;
 
 
--------------------------------------------------------
+-----------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_unionDrainageLine(integer)
--------------------------------------------------------
+-----------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_unionDrainageLine(integer)
 RETURNS character varying AS
@@ -1413,9 +1418,9 @@ $$
 LANGUAGE PLPGSQL;
 
 
-----------------------------------------------------------------
+--------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_unionDrainageLine(integer, integer)
-----------------------------------------------------------------
+--------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_unionDrainageLine(integer, integer)
 RETURNS character varying AS
@@ -1453,9 +1458,9 @@ $$
 LANGUAGE PLPGSQL;
 
 
---------------------------------------------------------
+------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_unionDrainageLinevalence2()
---------------------------------------------------------
+------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_unionDrainageLinevalence2()
 RETURNS varchar AS
@@ -1532,9 +1537,9 @@ $$
 LANGUAGE PLPGSQL;
 
 
--------------------------------------------------
+-----------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_PointValenceValue4()
--------------------------------------------------
+-----------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_PointValenceValue4()
 RETURNS TABLE(drp_pk_ integer, drp_gm_ geometry)
@@ -1555,9 +1560,9 @@ $$
 LANGUAGE PLPGSQL;
 
 
-----------------------------------------------------
+--------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_numPointValenceValue4()
-----------------------------------------------------
+--------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_numPointValenceValue4()
 RETURNS bigint AS
@@ -1571,9 +1576,9 @@ FROM pgh_consistency.pghfn_PointValenceValue4()
 $$
 LANGUAGE SQL;
 
----------------------------------------------------------
+-------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_DrainageLineIsDisconnected()
----------------------------------------------------------
+-------------------------------------------------------------
 
 CREATE OR REPLACE  FUNCTION pgh_consistency.pghfn_DrainageLineIsDisconnected()
 RETURNS TABLE(drn_pk_ integer, drn_gm_ geometry)
@@ -1594,9 +1599,9 @@ $$
 LANGUAGE PLPGSQL;
 
 
-------------------------------------------------------------
+----------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_numDrainageLineIsDisconnected()
-------------------------------------------------------------
+----------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_numDrainageLineIsDisconnected()
 RETURNS bigint AS
@@ -1610,9 +1615,9 @@ FROM pgh_consistency.pghfn_DrainageLineIsDisconnected()
 $$
 LANGUAGE SQL;
 
----------------------------------------------
+-------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_PointDivergent()
----------------------------------------------
+-------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_PointDivergent()
 RETURNS TABLE(drp_pk_ integer, drp_gm_ geometry)
@@ -1647,9 +1652,9 @@ END;
 $$
 LANGUAGE PLPGSQL;
 
-------------------------------------------------
+----------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_numPointDivergent()
-------------------------------------------------
+----------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_numPointDivergent()
 RETURNS bigint AS
@@ -1663,9 +1668,9 @@ FROM pgh_consistency.pghfn_PointDivergent()
 $$
 LANGUAGE SQL;
 
-------------------------------------------------------
+----------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_DrainageAreaIsNotSingle()
-------------------------------------------------------
+----------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_DrainageAreaIsNotSingle()
 RETURNS TABLE(dra_pk_ integer, dra_gm_ geometry)
@@ -1686,9 +1691,9 @@ $$
 LANGUAGE PLPGSQL;
 
 
----------------------------------------------------------
+-------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_numDrainageAreaIsNotSingle()
----------------------------------------------------------
+-------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_numDrainageAreaIsNotSingle()
 RETURNS bigint AS
@@ -1703,9 +1708,9 @@ $$
 LANGUAGE SQL;
 
 
-------------------------------------------------------
+----------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_DrainageAreaIsNotSimple()
-------------------------------------------------------
+----------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_DrainageAreaIsNotSimple()
 RETURNS TABLE(dra_pk_ integer, dra_gm_ geometry)
@@ -1879,9 +1884,9 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_RemoveDrainageAreaOverlap();
 
-------------------------------------------------------------
+-------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_RemoveDrainageAreaOverlaps()
-------------------------------------------------------------
+-------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_removedrainageareaoverlaps(integer)
 RETURNS void AS
@@ -1904,9 +1909,9 @@ END;
 $$
 LANGUAGE PLPGSQL;
 
--------------------------------------------------------------
+-----------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_DrainageAreaWithinDrainageArea()
--------------------------------------------------------------
+-----------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_DrainageAreaWithinDrainageArea()
 RETURNS TABLE(dra_pk_ integer, dra_gm_ geometry)
@@ -1950,9 +1955,9 @@ END;
 $$
 LANGUAGE PLPGSQL;
 
-----------------------------------------------------------------
+--------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_numDrainageAreaWithinDrainageArea()
-----------------------------------------------------------------
+--------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_numDrainageAreaWithinDrainageArea()
 RETURNS bigint AS
@@ -1991,9 +1996,9 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_DeleteDrainageAreaWithinDrainageArea();
 
-------------------------------------------------------------
+----------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_DrainageAreaHaveGeometryEmpty()
-------------------------------------------------------------
+----------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_DrainageAreaHaveGeometryEmpty()
 RETURNS TABLE(dra_pk_ integer, dra_gm_ geometry)
@@ -2016,9 +2021,9 @@ $$
 LANGUAGE PLPGSQL;
 
 
----------------------------------------------------------------
+-------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_numDrainageAreaHaveGeometryEmpty()
----------------------------------------------------------------
+-------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_numDrainageAreaHaveGeometryEmpty()
 RETURNS bigint AS
@@ -2033,9 +2038,9 @@ $$
 LANGUAGE SQL;
 
 
-----------------------------------------------------------------
+------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_DeleteDrainageAreaGeometryEmpty()
-----------------------------------------------------------------
+------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_DeleteDrainageAreaGeometryEmpty()
 RETURNS character varying AS
@@ -2059,9 +2064,9 @@ END;
 $$
 LANGUAGE PLPGSQL;
 
----------------------------------------------------------
+-------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_DrainageAreaNoDrainageLine()
----------------------------------------------------------
+-------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_DrainageAreaNoDrainageLine()
 RETURNS TABLE(dra_pk_ integer, dra_gm_ geometry)
@@ -2083,9 +2088,9 @@ $$
 LANGUAGE PLPGSQL;
 
 
-------------------------------------------------------------
+----------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_numDrainageAreaNoDrainageLine()
-------------------------------------------------------------
+----------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_numDrainageAreaNoDrainageLine()
 RETURNS bigint AS
@@ -2100,9 +2105,9 @@ $$
 LANGUAGE SQL;
 
 
----------------------------------------------------------
+-------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_DrainageLineNoDrainageArea()
----------------------------------------------------------
+-------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_DrainageLineNoDrainageArea()
 RETURNS TABLE(drn_pk_ integer, drn_gm_ geometry)
@@ -2124,9 +2129,9 @@ $$
 LANGUAGE PLPGSQL;
 
 
-------------------------------------------------------------
+----------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_numDrainageLineNoDrainageArea()
-------------------------------------------------------------
+----------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_numDrainageLineNoDrainageArea()
 RETURNS bigint AS
@@ -2141,9 +2146,9 @@ $$
 LANGUAGE SQL;
 
 
---------------------------------------------------------------
+------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_DrainageAreaMoreOneDrainageLine()
---------------------------------------------------------------
+------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_DrainageAreaMoreOneDrainageLine()
 RETURNS TABLE(dra_pk_ integer, dra_gm_ geometry)
@@ -2165,9 +2170,9 @@ $$
 LANGUAGE PLPGSQL;
 
 
------------------------------------------------------------------
+---------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_numDrainageAreaMoreOneDrainageLine()
------------------------------------------------------------------
+---------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_numDrainageAreaMoreOneDrainageLine()
 RETURNS bigint
@@ -2185,9 +2190,9 @@ $$
 LANGUAGE SQL;
 
 
---------------------------------------------------------------
+------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_DrainageLineMoreOneDrainageArea()
---------------------------------------------------------------
+------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_DrainageLineMoreOneDrainageArea()
 RETURNS TABLE(drn_pk_ integer, drn_gm_ geometry)
@@ -2209,9 +2214,9 @@ $$
 LANGUAGE PLPGSQL;
 
 
------------------------------------------------------------------
+---------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_numDrainageLineMoreOneDrainageArea()
------------------------------------------------------------------
+---------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_numDrainageLineMoreOneDrainageArea()
 RETURNS bigint AS
@@ -2226,9 +2231,9 @@ $$
 LANGUAGE SQL;
 
 
------------------------------------------------------
+---------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_FillGapsInDrainageArea()
------------------------------------------------------
+---------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_FillGapsInDrainageArea()
 RETURNS varchar AS
@@ -2271,9 +2276,9 @@ END;
 $$
 LANGUAGE PLPGSQL;
 
-----------------------------------------------------------------
+--------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_UnionDrainageArea(integer, integer)
-----------------------------------------------------------------
+--------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_UnionDrainageArea(integer, integer)
 RETURNS character varying AS
@@ -2409,9 +2414,9 @@ END;
 $$
 LANGUAGE PLPGSQL;
 
--------------------------------------------------------------
+-----------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_DrainageLineTouchDrainageLine()
--------------------------------------------------------------
+-----------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_DrainageLineTouchDrainageLine()
 RETURNS TABLE(drn_pk_ integer, drn_gm_ geometry)
@@ -2457,9 +2462,9 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_DrainageLineTouchDrainageLine()
 
-----------------------------------------------------------------
+--------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_numDrainageLineTouchDrainageLine()
-----------------------------------------------------------------
+--------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_numDrainageLineTouchDrainageLine()
 RETURNS bigint AS
@@ -2476,9 +2481,9 @@ LANGUAGE SQL;
 
 --SELECT pgh_consistency.pghfn_numDrainageLineTouchDrainageLine();
 
--------------------------------------------------------------
+-----------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_DrainageLineCrossDrainageLine()
--------------------------------------------------------------
+-----------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_DrainageLineCrossDrainageLine()
 RETURNS TABLE(drn_pk_ integer, drn_gm_ geometry)
@@ -2522,9 +2527,9 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_DrainageLineCrossDrainageLine()
 
-----------------------------------------------------------------
+--------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_numDrainageLineCrossDrainageLine()
-----------------------------------------------------------------
+--------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_numDrainageLineCrossDrainageLine()
 RETURNS bigint AS
@@ -2541,9 +2546,9 @@ LANGUAGE SQL;
 
 --SELECT pgh_consistency.pghfn_numDrainageLineCrossDrainageLine();
 
--------------------------------------------------------------
+------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_DrainageLineOverlapDrainageLine()
--------------------------------------------------------------
+------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_DrainageLineOverlapDrainageLine()
 RETURNS TABLE(drn_pk_ integer, drn_gm_ geometry)
@@ -2587,9 +2592,9 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_DrainageLineOverlapDrainageLine()
 
------------------------------------------------------------------
+---------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_numDrainageLineOverlapDrainageLine()
------------------------------------------------------------------
+---------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_numDrainageLineOverlapDrainageLine()
 RETURNS bigint AS
@@ -2605,9 +2610,9 @@ LANGUAGE SQL;
 
 --SELECT pgh_consistency.pghfn_numDrainageLineOverlapDrainageLine();
 
-------------------------------------------------------------------
+------------------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_UpdateDrainageLineConsistencyGeometryTables()
-------------------------------------------------------------------
+------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_UpdateDrainageLineConsistencyGeometryTables()
 RETURNS character varying AS
@@ -2660,9 +2665,9 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_UpdateDrainageLineConsistencyGeometryTables();
 
---------------------------------------------------------------------------
+----------------------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_UpdateDrainageLineConsistencyTopologyTables_1()
---------------------------------------------------------------------------
+----------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_UpdateDrainageLineConsistencyTopologyTables_1()
 RETURNS character varying AS
@@ -2703,7 +2708,7 @@ FROM pgh_consistency.pghfn_DrainageLineOverlapDrainageLine();
 TRUNCATE pgh_consistency.pghft_DrainageLineLoops;
 
 INSERT INTO pgh_consistency.pghft_DrainageLineLoops
-SELECT row_number() OVER () as id, (pghfn_DrainageLineLoops).plg_pk_ as plg_pk, (row_number() OVER () - 1) % 10 + 1 as editor, (pghfn_DrainageLineLoops).plg_gm_ as plg_gm
+SELECT row_number() OVER () as id, (pghfn_DrainageLineLoops).plg_pk_ as plg_pk, (row_number() OVER () - 1) % 10 + 1 as editor, (pghfn_DrainageLineLoops).plg_gm_ as plg_gm, ST_AREA((pghfn_DrainageLineLoops).plg_gm_) as area
 FROM pgh_consistency.pghfn_DrainageLineLoops();
 
 RETURN 'OK';
@@ -2717,9 +2722,9 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_UpdateDrainageLineConsistencyTopologyTables_1();
 
-----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_UpdateDrainageLineConsistencyTopologyTables_2()
-----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_UpdateDrainageLineConsistencyTopologyTables_2()
 RETURNS character varying AS
@@ -2756,9 +2761,9 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_UpdateDrainageLineConsistencyTopologyTables_2();
 
--------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_UpdateDrainageLineNetworkConsistencyTables()
--------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_UpdateDrainageLineNetworkConsistencyTables()
 RETURNS character varying AS
@@ -2793,9 +2798,9 @@ END;
 $$
 LANGUAGE PLPGSQL;
 
-----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_UpdateDrainageLineConnectionConsistencyTables()
-----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_UpdateDrainageLineConnectionConsistencyTables()
 RETURNS character varying AS
@@ -2830,9 +2835,9 @@ END;
 $$
 LANGUAGE PLPGSQL;
 
--------------------------------------------------------------------------
+------------------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_UpdateDrainageAreaConsistencyGeometryTables()
--------------------------------------------------------------------------
+------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_UpdateDrainageAreaConsistencyGeometryTables()
 RETURNS character varying AS
@@ -2892,7 +2897,7 @@ BEGIN
 TRUNCATE pgh_consistency.pghft_DrainageAreaOverlapDrainageArea;
 
 INSERT INTO pgh_consistency.pghft_DrainageAreaOverlapDrainageArea
-SELECT row_number() OVER () as id, (pghfn_DrainageAreaOverlapDrainageArea).int_pk_ as int_pk, (row_number() OVER () - 1) % 10 + 1 as editor, (pghfn_DrainageAreaOverlapDrainageArea).int_gm_ as int_gm, (pghfn_DrainageAreaOverlapDrainageArea).dra_gm_a_ as dra_gm_a, (pghfn_DrainageAreaOverlapDrainageArea).dra_gm_b_ as dra_gm_b
+SELECT row_number() OVER () as id, (pghfn_DrainageAreaOverlapDrainageArea).int_pk_ as int_pk, (row_number() OVER () - 1) % 10 + 1 as editor, (pghfn_DrainageAreaOverlapDrainageArea).int_gm_ as int_gm, (pghfn_DrainageAreaOverlapDrainageArea).dra_gm_a_ as dra_gm_a, (pghfn_DrainageAreaOverlapDrainageArea).dra_gm_b_ as dra_gm_b, ST_AREA((pghfn_DrainageAreaOverlapDrainageArea).int_gm_) as area
 FROM pgh_consistency.pghfn_DrainageAreaOverlapDrainageArea();
 
 --TABLE pgh_consistency.pghft_DrainageAreaWithinDrainageArea
@@ -2900,7 +2905,7 @@ FROM pgh_consistency.pghfn_DrainageAreaOverlapDrainageArea();
 TRUNCATE pgh_consistency.pghft_DrainageAreaWithinDrainageArea;
 
 INSERT INTO pgh_consistency.pghft_DrainageAreaWithinDrainageArea
-SELECT row_number() OVER () as id, (pghfn_DrainageAreaWithinDrainageArea).dra_pk_ as dra_pk, (row_number() OVER () - 1) % 10 + 1 as editor, (pghfn_DrainageAreaWithinDrainageArea).dra_gm_ as dra_gm
+SELECT row_number() OVER () as id, (pghfn_DrainageAreaWithinDrainageArea).dra_pk_ as dra_pk, (row_number() OVER () - 1) % 10 + 1 as editor, (pghfn_DrainageAreaWithinDrainageArea).dra_gm_ as dra_gm, ST_AREA((pghfn_DrainageAreaWithinDrainageArea).dra_gm_) as area
 FROM pgh_consistency.pghfn_DrainageAreaWithinDrainageArea();
 
 RETURN 'OK';
@@ -2912,9 +2917,9 @@ END;
 $$
 LANGUAGE PLPGSQL;
 
-------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_UpdateDrainageLineDrainageAreaConsistencyTables()
-------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_UpdateDrainageLineDrainageAreaConsistencyTables()
 RETURNS character varying AS
@@ -2929,7 +2934,7 @@ BEGIN
 TRUNCATE pgh_consistency.pghft_DrainageAreaNoDrainageLine;
 
 INSERT INTO pgh_consistency.pghft_DrainageAreaNoDrainageLine
-SELECT row_number() OVER () as id, a.hin_dra_pk as dra_pk, (row_number() OVER () - 1) % 10 + 1 as editor, b.dra_gm as dra_gm
+SELECT row_number() OVER () as id, a.hin_dra_pk as dra_pk, (row_number() OVER () - 1) % 10 + 1 as editor, b.dra_gm as dra_gm, ST_AREA(b.dra_gm) as area
 FROM pghydro.pghft_drainage_area b, pghydro.pghft_hydro_intel a
 WHERE a.hin_drn_pk isnull
 AND a.hin_dra_pk = b.dra_pk;
@@ -3136,9 +3141,9 @@ LANGUAGE PLPGSQL;
 
 --SELECT pgh_consistency.pghfn_ConfluenceHydronym();
 
-----------------------------------------------------
+--------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_numConfluenceHydronym()
-----------------------------------------------------
+--------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_numDrainageLineOverlapDrainageLine()
 RETURNS bigint AS
@@ -3154,9 +3159,9 @@ LANGUAGE SQL;
 
 --SELECT pgh_consistency.pghfn_numConfluenceHydronym();
 
-----------------------------------------------------------------------
+--------------------------------------------------------------------------
 --FUNCTION pgh_consistency.pghfn_UpdateConfluenceHydronymConistencyTable()
-----------------------------------------------------------------------
+--------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pgh_consistency.pghfn_UpdateConfluenceHydronymConistencyTable()
 RETURNS character varying AS
