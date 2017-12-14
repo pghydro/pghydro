@@ -42,6 +42,8 @@ CREATE TABLE pgh_consistency.pghft_drainageareaoverlapdrainagearea
   id bigint NOT NULL,
   int_pk bigint,
   editor bigint,
+  dra_pk_a integer,
+  dra_pk_b integer,
   cn01_gm geometry(MultiPolygon),
   dra_gm_a geometry(MultiPolygon),
   dra_gm_b geometry(MultiPolygon),
@@ -2897,7 +2899,7 @@ BEGIN
 TRUNCATE pgh_consistency.pghft_DrainageAreaOverlapDrainageArea;
 
 INSERT INTO pgh_consistency.pghft_DrainageAreaOverlapDrainageArea
-SELECT row_number() OVER () as id, (pghfn_DrainageAreaOverlapDrainageArea).int_pk_ as int_pk, (row_number() OVER () - 1) % 10 + 1 as editor, (pghfn_DrainageAreaOverlapDrainageArea).int_gm_ as int_gm, (pghfn_DrainageAreaOverlapDrainageArea).dra_gm_a_ as dra_gm_a, (pghfn_DrainageAreaOverlapDrainageArea).dra_gm_b_ as dra_gm_b, ST_AREA((pghfn_DrainageAreaOverlapDrainageArea).int_gm_) as area
+SELECT row_number() OVER () as id, (pghfn_DrainageAreaOverlapDrainageArea).int_pk_ as int_pk, (row_number() OVER () - 1) % 10 + 1 as editor, (pghfn_DrainageAreaOverlapDrainageArea).dra_pk_a_ as dra_pk_a, (pghfn_DrainageAreaOverlapDrainageArea).dra_pk_b_ as dra_pk_b, (pghfn_DrainageAreaOverlapDrainageArea).int_gm_ as int_gm, (pghfn_DrainageAreaOverlapDrainageArea).dra_gm_a_ as dra_gm_a, (pghfn_DrainageAreaOverlapDrainageArea).dra_gm_b_ as dra_gm_b, ST_AREA((pghfn_DrainageAreaOverlapDrainageArea).int_gm_) as area
 FROM pgh_consistency.pghfn_DrainageAreaOverlapDrainageArea();
 
 --TABLE pgh_consistency.pghft_DrainageAreaWithinDrainageArea
