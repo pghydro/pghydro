@@ -21,7 +21,7 @@
 --PostGIS version 2.0+
 
 ---------------------------------------------------------------------------------
---PgHydro Extension Version 6.0.1 of xx/xx/xxxx 
+--PgHydro Extension Version 6.2 of xx/xx/xxxx 
 ---------------------------------------------------------------------------------
 
 -------------------------------------
@@ -3988,47 +3988,46 @@ LANGUAGE PLPGSQL;
 --FUNCTION pghydro.pghfn_pfafstetter_codifications(integer, integer)
 --------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION pghydro.pghfn_pfafstetter_codifications(integer, integer)
-RETURNS TABLE(drn_pk_ integer, pfafstetter_codification_ integer)
+RETURNS TABLE(drn_pk_ integer, pfafstetter_codification_ integer, depth_ integer)
 AS $$
 BEGIN
 
 RETURN QUERY
 
-SELECT (pghfn_pfafstetter_codification).drn_pk_, (pghfn_pfafstetter_codification).pfafstetter_codification_
+SELECT (pghfn_pfafstetter_codification).drn_pk_, (pghfn_pfafstetter_codification).pfafstetter_codification_, d.depth
 FROM
 (
 -----
-SELECT pghydro.pghfn_pfafstetter_codification(vard, varu)
+SELECT pghydro.pghfn_pfafstetter_codification(vard, varu), e.depth 
 FROM
 (
 ----
 WITH cod as
 (
-WITH RECURSIVE cod(vard, varu, vard2, varu2) AS
+WITH RECURSIVE cod(vard, varu, vard2, varu2, depth) AS
 (
-	SELECT $1 as vard, $2 as varu, 0 as vard2, 0 as varu
+	SELECT $1 as vard, $2 as varu, 0 as vard2, 0 as varu, 1 as depth
 UNION ALL
-	SELECT (pghfn_main_watercourse_9_confluences).vard as vard, (pghfn_main_watercourse_9_confluences).varu, vard2, varu2
+	SELECT (pghfn_main_watercourse_9_confluences).vard as vard, (pghfn_main_watercourse_9_confluences).varu, vard2, varu2, depth
 	FROM
 	(
-	SELECT pghydro.pghfn_main_watercourse_9_confluences(vard, varu), c.vard as vard2, c.varu as varu2
+	SELECT pghydro.pghfn_main_watercourse_9_confluences(vard, varu), c.vard as vard2, c.varu as varu2, c.depth + 1 as depth
 	FROM cod c 
 	WHERE vard = c.vard
 	AND varu = c.varu
 	) as b
 )
-SELECT vard, varu, vard2, varu2
+SELECT vard, varu, vard2, varu2, depth
 FROM cod
 WHERE vard <> varu
 )
-SELECT vard, varu
+SELECT vard, varu, depth
 FROM cod
 WHERE vard in (SELECT DISTINCT vard2 FROM cod)
 ----
 ) as e
 -----
 ) as d
-
 ;
 END;
 $$
@@ -4112,10 +4111,11 @@ time_ := timeofday();
 RAISE NOTICE 'BEGIN OF PROCESS 10 : %', time_;
 
 CREATE TABLE pghydro.pghtb_input_pfafstetterbasincode AS
-SELECT drn_pk_ as pbc_drn_pk, 'R'||string_agg((pfafstetter_codification_),'' ORDER BY id) as pbc_dra_cd_pfafstetterbasin
+
+SELECT drn_pk_ as pbc_drn_pk, 'R'||string_agg((pfafstetter_codification_),'' ORDER BY depth) as pbc_dra_cd_pfafstetterbasin
 FROM
 (
-SELECT (ROW_NUMBER() OVER ())::integer AS id, (pghfn_pfafstetter_codifications).drn_pk_, ((pghfn_pfafstetter_codifications).pfafstetter_codification_)::text
+SELECT (pghfn_pfafstetter_codifications).drn_pk_, ((pghfn_pfafstetter_codifications).pfafstetter_codification_)::text, ((pghfn_pfafstetter_codifications).depth_) as depth
 FROM pghydro.pghfn_pfafstetter_codifications($1, $2)
 ) as a
 GROUP BY drn_pk_;
@@ -4163,7 +4163,6 @@ RETURN 'OK';
 END;
 $$
 LANGUAGE PLPGSQL;
-
 
 ---------------------------------------------------------------------
 --FUNCTION pghydro.pghfn_Calculate_Pfafstetter_Codification()
@@ -4276,10 +4275,10 @@ RAISE NOTICE 'BEGIN OF PROCESS 11 : %', time_;
 
 CREATE TABLE pghydro.pghtb_input_pfafstetterbasincode AS
 
-SELECT drn_pk_ as pbc_drn_pk, 'R'||string_agg((pfafstetter_codification_),'' ORDER BY id) as pbc_dra_cd_pfafstetterbasin
+SELECT drn_pk_ as pbc_drn_pk, 'R'||string_agg((pfafstetter_codification_),'' ORDER BY depth) as pbc_dra_cd_pfafstetterbasin
 FROM
 (
-SELECT (ROW_NUMBER() OVER ())::integer AS id, (pghfn_pfafstetter_codifications).drn_pk_, ((pghfn_pfafstetter_codifications).pfafstetter_codification_)::text
+SELECT (pghfn_pfafstetter_codifications).drn_pk_, ((pghfn_pfafstetter_codifications).pfafstetter_codification_)::text, ((pghfn_pfafstetter_codifications).depth_) as depth
 FROM pghydro.pghfn_pfafstetter_codifications(var1, var2)
 ) as a
 GROUP BY drn_pk_;
@@ -4327,7 +4326,6 @@ RETURN 'OK';
 END;
 $$
 LANGUAGE PLPGSQL;
-
 
 ------------------------------------------------------------
 --FUNCTION pghydro.pghfn_UpdatePfafstetterBasinCode(varchar)
