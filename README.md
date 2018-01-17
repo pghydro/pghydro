@@ -5,9 +5,9 @@ PgHydro extends the PostGIS/PostgreSQL geospatial database to provide drainage n
 
 ## Branches
 
-The master branch has the latest minor release. (6.0)
+The master branch has the latest minor release. (6.2)
 
-The develop branch has the next minor release. (6.1-dev)
+The develop branch has the next minor release. (6.3-dev)
 
 # INTRODUCTION
 
