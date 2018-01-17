@@ -4863,7 +4863,6 @@ WHERE seq_dra_nu_pfafstetterbasincodelevel = $1;
 $$
 LANGUAGE SQL;
 
-
 --------------------------------------------------------------
 --FUNCTION pghydro.pghfn_UpdateWatershedDrainageArea(integer)
 --------------------------------------------------------------
@@ -4883,7 +4882,7 @@ time_ := timeofday();
 RAISE NOTICE 'BEGIN OF PROCESS 1 : %', time_;    
 
 INSERT INTO pghydro.pghft_watershed (wts_cd_pfafstetterbasin, wts_cd_pfafstetterbasincodelevel, wts_gm_area, wts_gm)
-SELECT dra_cd_pfafstetterbasin, $1 as dra_nu_pfafstetterbasincodelevel, SUM(dra_gm_area) as dra_gm_area, ST_Multi(ST_UNION(dra_gm)) as dra_gm
+SELECT dra_cd_pfafstetterbasin, $1 as dra_nu_pfafstetterbasincodelevel, SUM(dra_gm_area) as dra_gm_area, ST_Multi((ST_UNION(dra_gm))) as dra_gm
 FROM
 (
 SELECT substring(dra_cd_pfafstetterbasin FROM 1 FOR $1) as dra_cd_pfafstetterbasin, dra_gm_area, dra_gm
@@ -4892,19 +4891,32 @@ FROM pghydro.pghft_drainage_area
 GROUP BY dra_cd_pfafstetterbasin;
 
 time_ := timeofday();
-RAISE NOTICE 'END OF PROCESS IN : %', time_;    
+RAISE NOTICE 'BEGIN OF PROCESS 2 : %', time_; 
+
+UPDATE pghydro.pghft_watershed wts
+SET wts_gm = a.wts_gm
+FROM
+(
+SELECT wts_pk, ST_Collect(ST_MakePolygon(wts_gm)) As wts_gm
+FROM (
+    SELECT wts_pk, ST_ExteriorRing((ST_Dump(wts_gm)).geom) As wts_gm
+    FROM pghydro.pghft_watershed
+    ) as a
+GROUP BY wts_pk
+) as a
+WHERE a.wts_pk = wts.wts_pk
+AND wts.wts_cd_pfafstetterbasincodelevel = $1;
+
+time_ := timeofday();
+RAISE NOTICE 'END OF PROCESS IN : %', time_;
 
 RAISE NOTICE 'BASIN LEVEL % FINISHED', $1;
 
 RETURN 'OK';
 
-
-
 END;
 $$
 LANGUAGE PLPGSQL;
-
-
 
 ----------------------------------------------------
 --FUNCTION pghydro.pghfn_UpdateWatershed(integer)
@@ -4949,7 +4961,24 @@ WHERE wts_cd_pfafstetterbasincodelevel = $1
 GROUP BY wts_cd_pfafstetterbasin;
 
 time_ := timeofday();
-RAISE NOTICE 'BEGIN OF PROCESS 4 : %', time_;    
+RAISE NOTICE 'BEGIN OF PROCESS 4 : %', time_;  
+
+UPDATE pghydro.pghft_watershed wts
+SET wts_gm = a.wts_gm
+FROM
+(
+SELECT wts_pk, ST_Collect(ST_MakePolygon(wts_gm)) As wts_gm
+FROM (
+    SELECT wts_pk, ST_ExteriorRing((ST_Dump(wts_gm)).geom) As wts_gm
+    FROM pghydro.pghft_watershed
+    ) as a
+GROUP BY wts_pk
+) as a
+WHERE a.wts_pk = wts.wts_pk
+AND wts.wts_cd_pfafstetterbasincodelevel = $1-1;
+
+time_ := timeofday();
+RAISE NOTICE 'BEGIN OF PROCESS 5 : %', time_;    
 
 DROP INDEX IF EXISTS pghydro.wts_cd_pfafstetterbasincodelevel_idx;
 
@@ -4963,7 +4992,6 @@ RAISE NOTICE 'END OF PROCESS IN : %', time_;
 END;
 $$
 LANGUAGE PLPGSQL;
-
 
 ----------------------------------------------------------------
 --FUNCTION pghydro.pghfn_InsertColumnPfafstetterBasinCodeLevel()
