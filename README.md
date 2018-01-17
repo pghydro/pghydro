@@ -23,7 +23,8 @@ PostGIS version 2.0+
 
 ## INSTALLATION (v.6.2)
 
-Download the last pghydro stable release zip file(.rar) from the site https://github.com/pghydro/pghydro/releases, unzip, copy and paste *.sql and *.control files to \PostgreSQL\x.x\share\extension
+1 - Download the last pghydro stable release file Source code (zip) from the site https://github.com/pghydro/pghydro/releases
+2 - Unzip, copy and paste *.sql and *.control files to \PostgreSQL\x.x\share\extension
 
 Postgresql 9.1+
 
