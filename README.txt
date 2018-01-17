@@ -1,1 +1,0 @@
-Copy the content of extension directory to \PostgreSQL\x.x\share\extension
