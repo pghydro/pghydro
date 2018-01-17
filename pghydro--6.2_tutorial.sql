@@ -19,12 +19,15 @@
 
 --Postgresql version 9.1+
 --PostGIS version 2.0+
---PgHydro version 6.0.1
+--PgHydro version 6.2
 
---Download the files *.sql and *.control in https://github.com/pghydro/pghydro/tree/master and copy the content to \PostgreSQL\x.x\share\extension
+--INSTALLATION
+
+--1 - Download the last pghydro stable release file Source code (zip) from the site https://github.com/pghydro/pghydro/releases
+--2 - Unzip, copy and paste *.sql and *.control files to \PostgreSQL\x.x\share\extension
 
 ---------------------------------------------------------------------------------
---PgHYDRO Tutorial version 6.0.1 of xx/xx/xxxx
+--PgHYDRO Tutorial version 6.2 of 17/01/2018
 ---------------------------------------------------------------------------------
 
 --=============================================
