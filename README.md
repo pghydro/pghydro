@@ -32,7 +32,7 @@ Postgresql 9.1+
 	createdb mydatabase
 	psql mydatabase -c "CREATE EXTENSION postgis"
 	psql mydatabase -c "CREATE EXTENSION pghydro"
-	psql mydatabase -c "CREATE EXTENSION pghconsistency"
+	psql mydatabase -c "CREATE EXTENSION pgh_consistency"
 	psql mydatabase -c "CREATE EXTENSION pgh_output"
 
 ## Notes
