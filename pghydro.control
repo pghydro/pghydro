@@ -1,6 +1,6 @@
 # pghydro extension
 comment = 'pghydro extension'
-default_version = '6.2'
+default_version = '6.4'
 encoding = 'latin1'
 requires = 'plpgsql'
 requires = 'postgis'
