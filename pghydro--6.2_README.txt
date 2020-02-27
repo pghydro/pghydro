@@ -1,5 +1,0 @@
-INSTALLATION (v.6.2)
-
-1 - Download the last pghydro stable release file Source code (zip) from the site https://github.com/pghydro/pghydro/releases
-
-2 - Unzip, copy and paste *.sql and *.control files to \PostgreSQL\x.x\share\extension
