@@ -1,5 +1,5 @@
-# pghydro consistency extension
-comment = 'pghydro consistency extension'
+# pghydro output extension pt-br
+comment = 'pghydro output extension pt-br'
 default_version = '6.6'
 encoding = 'latin1'
 requires = 'plpgsql'
