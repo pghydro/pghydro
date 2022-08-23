@@ -1,4 +1,4 @@
-INSTALLATION (v.6.4)
+INSTALLATION (v.6.6)
 
 1 - Download the last pghydro stable release file Source code (zip) from the site https://github.com/pghydro/pghydro/releases
 
