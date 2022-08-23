@@ -5,9 +5,9 @@ PgHydro extends the PostGIS/PostgreSQL geospatial database to provide drainage n
 
 ## Branches
 
-The master branch has the latest minor release. (6.0)
+The master branch has the latest minor release. (6.4)
 
-The develop branch has the next minor release. (6.0.1-dev)
+The develop branch has the next minor release. (6.5-dev)
 
 # INTRODUCTION
 
@@ -17,25 +17,27 @@ Hydrographic objects are all  tables, constrains, procedures, queries, functions
 
 # REQUIREMENTS
 
-Postgresql version = postgresql-9.3.5-3-windows-x64
-(https://drive.google.com/file/d/0B2u6WhefYxhZMmlPazUwR2pZYWs/view?usp=sharing)
+Postgresql version 9.1+
 
-PostGIS version = postgis-bundle-pg93x64-setup-2.1.4-1
-(https://drive.google.com/file/d/0B2u6WhefYxhZdTIyVlRBWllPeXc/view?usp=sharing)
+PostGIS version 2.0+
 
-## INSTALLATION (v.6.0)
+## INSTALLATION (v.6.4)
 
-Download the files below and copy the content to \PostgreSQL\x.x\share\extension
+1 - Download the last pghydro stable release file Source code (zip) from the site https://github.com/pghydro/pghydro/releases
 
-(https://drive.google.com/drive/folders/0B2u6WhefYxhZNTIyMXdFaFhqOVk?usp=sharing)
+2 - Unzip, copy and paste *.sql and *.control files to \PostgreSQL\x.x\share\extension
 
 Postgresql 9.1+
 
 	createdb mydatabase
 	psql mydatabase -c "CREATE EXTENSION postgis"
 	psql mydatabase -c "CREATE EXTENSION pghydro"
-	psql mydatabase -c "CREATE EXTENSION pghconsistency"
+	psql mydatabase -c "CREATE EXTENSION pgh_consistency"
 	psql mydatabase -c "CREATE EXTENSION pgh_output"
+
+## Tutorial (v.6.2)
+
+Youtube: https://www.youtube.com/channel/UCgkCUQ-i72bBY41a1bhVWyw
 
 ## Notes
 
