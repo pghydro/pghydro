@@ -5,9 +5,9 @@ PgHydro extends the PostGIS/PostgreSQL geospatial database to provide drainage n
 
 ## Branches
 
-The master branch has the latest minor release. (6.4)
+The master branch has the latest minor release. (6.6)
 
-The develop branch has the next minor release. (6.5-dev)
+The develop branch has the next minor release. (6.7-dev)
 
 # INTRODUCTION
 
@@ -19,9 +19,9 @@ Hydrographic objects are all  tables, constrains, procedures, queries, functions
 
 Postgresql version 9.1+
 
-PostGIS version 2.x
+PostGIS version 3.x
 
-## INSTALLATION (v.6.4)
+## INSTALLATION (v.6.6)
 
 1 - Download the last pghydro stable release file Source code (zip) from the site https://github.com/pghydro/pghydro/releases
 
@@ -35,13 +35,17 @@ Postgresql 9.1+
 	psql mydatabase -c "CREATE EXTENSION pgh_consistency"
 	psql mydatabase -c "CREATE EXTENSION pgh_output"
 
-## Tutorial (v.6.2)
+## Tutorial (v.6.6) - Also can be used for versions 6.2 or 6.4
 
 Youtube: https://www.youtube.com/channel/UCgkCUQ-i72bBY41a1bhVWyw
 
 ## Notes
 
 IMPORTANT : the changes are made in the current project, and will be saved only if you save the project.
+
+Previous versions 6.2 and 6.4 still works with PostgreSQL 9-11 and PostGIS 2.x.
+
+PGHYDRO (extension for PostgreSQL/PostGIS) works better with PgQGIS PgHydroTools Plugin (https://github.com/pghydro/pghydrotools).
 
 ## Authors
 

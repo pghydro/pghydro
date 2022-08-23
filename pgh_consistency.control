@@ -1,6 +1,6 @@
 # pghydro consistency extension
 comment = 'pghydro consistency extension'
-default_version = '6.4'
+default_version = '6.6'
 encoding = 'latin1'
 requires = 'plpgsql'
 requires = 'postgis'
