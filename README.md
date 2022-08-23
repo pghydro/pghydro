@@ -35,7 +35,7 @@ Postgresql 9.1+
 	psql mydatabase -c "CREATE EXTENSION pgh_consistency"
 	psql mydatabase -c "CREATE EXTENSION pgh_output"
 
-## Tutorial (v.6.2)
+## Tutorial (v.6.4) - Also works with version 6.4
 
 Youtube: https://www.youtube.com/channel/UCgkCUQ-i72bBY41a1bhVWyw
 
