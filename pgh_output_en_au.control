@@ -1,0 +1,7 @@
+# pghydro output extension en-au
+comment = 'pghydro output extension en-au'
+default_version = '6.6'
+encoding = 'latin1'
+requires = 'plpgsql'
+requires = 'postgis'
+requires = 'pghydro'
