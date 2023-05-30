@@ -1,0 +1,8 @@
+# pghydro raster extension
+comment = 'pghydro raster extension'
+default_version = '6.6'
+encoding = 'latin1'
+requires = 'plpgsql'
+requires = 'postgis'
+requires = 'postgis_raster'
+requires = 'pghydro'
