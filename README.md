@@ -21,6 +21,8 @@ Postgresql version 9.1+
 
 PostGIS version 3.x
 
+PostGIS Raster
+
 ## INSTALLATION (v.6.6)
 
 1 - Download the last pghydro stable release file Source code (zip) from the site https://github.com/pghydro/pghydro/releases
@@ -31,9 +33,12 @@ Postgresql 9.1+
 
 	createdb mydatabase
 	psql mydatabase -c "CREATE EXTENSION postgis"
+	psql mydatabase -c "CREATE EXTENSION postgis_raster"
 	psql mydatabase -c "CREATE EXTENSION pghydro"
+	psql mydatabase -c "CREATE EXTENSION pgh_raster"
 	psql mydatabase -c "CREATE EXTENSION pgh_consistency"
 	psql mydatabase -c "CREATE EXTENSION pgh_output"
+	
 
 ## Tutorial (v.6.6) - Also can be used for versions 6.2 or 6.4
 
