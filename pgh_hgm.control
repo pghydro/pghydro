@@ -1,0 +1,9 @@
+ #pgh_hgm extension
+comment = 'pgh_hgm extension'
+default_version = '2.2.3'
+encoding = 'latin1'
+requires = 'plpgsql'
+requires = 'postgis'
+requires = 'postgis_raster'
+requires = 'pghydro'
+requires = 'pgh_raster'
