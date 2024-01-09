@@ -41,7 +41,7 @@
 */
 
 ---------------------------------------------------------------------------------
---PGH_HGM: PgHydro Hydrological Geomorphology Calculations Extension - v.2.2.3 (2023.10.30)
+--PGH_HGM: PgHydro Hydrological Geomorphology Calculations Extension - v.2.2.3 (2024.01.09)
 ---------------------------------------------------------------------------------
 
 -------------------------------------
@@ -1764,7 +1764,7 @@ BEGIN
                 tc_dooge,
                 tc_kirpich,
                 tc_wattchow,
-                tc_georgeribeiro
+                tc_georgeribeiro,
                 tc_pasini,
                 tc_ventura,
                 tc_dnosk1                
@@ -6246,9 +6246,9 @@ BEGIN
             57.0 * (hig_drn_length_km^3. / (hig_drn_slope_adim*hig_drn_length_km*1000.))^0.385 AS tc_kirpich,
             7.68*(hig_drn_length_km/(hig_drn_slope_adim^0.5))^0.79 AS tc_wattchow,
             16.*hig_drn_length_km/(1.05-0.2*(0.6))*(100.*hig_drn_slope_adim)^0.04 AS tc_georgeribeiro, --assuming p=0.6   
-            (60)*0.107*(hig_dra_area_km2*hig_drn_length_km)^(1./3.)/((100.*hig_drn_slope_adim)^0.5) AS tc_pasini,
-            (60)*0.127*SQRT(hig_dra_area_km2/(100.*hig_drn_slope_adim)) AS tc_ventura,
-            10./(1.0)*(hig_dra_area_km2^0.3)*(hig_drn_length_km^0.2)/((100.*hig_drn_slope_adim)^0.4) AS tc_dnosk1 --assume K=1                  
+            (60)*0.107*(hig_dra_area_km2*hig_drn_length_km)^(1./3.)/((hig_drn_slope_adim)^0.5) AS tc_pasini,
+            (60)*0.127*SQRT(hig_dra_area_km2/(hig_drn_slope_adim)) AS tc_ventura,
+            10./(1.0)*(hig_dra_area_km2^0.3)*(hig_drn_length_km^0.2)/((hig_drn_slope_adim)^0.4) AS tc_dnosk1 --assume K=1                  
         FROM
             pgh_hgm.pghft_hydro_intel
         WHERE hig_dra_pk = dra_pk_;
@@ -9120,9 +9120,9 @@ BEGIN
             57.0 * (hig_upn_length_km^3. / (hig_upn_slope_adim*hig_upn_length_km*1000.))^0.385 AS tc_kirpich,
             7.68*(hig_upn_length_km/(hig_upn_slope_adim^0.5))^0.79 AS tc_wattchow,
             16.*hig_upn_length_km/(1.05-0.2*(0.6))*(100.*hig_upn_slope_adim)^0.04 AS tc_georgeribeiro, --assuming p=0.6
-            (60)*0.107*(hig_upa_area_km2*hig_upn_length_km)^(1./3.)/((100.*hig_upn_slope_adim)^0.5) AS tc_pasini,
-            (60)*0.127*SQRT(hig_upa_area_km2/(100.*hig_upn_slope_adim)) AS tc_ventura,
-            10./(1.0)*(hig_upa_area_km2^0.3)*(hig_upn_length_km^0.2)/((100.*hig_upn_slope_adim)^0.4) AS tc_dnosk1 --assume K=1        
+            (60)*0.107*(hig_upa_area_km2*hig_upn_length_km)^(1./3.)/((hig_upn_slope_adim)^0.5) AS tc_pasini,
+            (60)*0.127*SQRT(hig_upa_area_km2/(hig_upn_slope_adim)) AS tc_ventura,
+            10./(1.0)*(hig_upa_area_km2^0.3)*(hig_upn_length_km^0.2)/((hig_upn_slope_adim)^0.4) AS tc_dnosk1 --assume K=1        
         FROM
             pgh_hgm.pghft_hydro_intel
         WHERE hig_dra_pk = dra_pk_;
