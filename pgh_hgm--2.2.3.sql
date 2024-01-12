@@ -622,9 +622,15 @@ $BODY$
         hig_dra_area_, hig_dra_area_km2, hig_dra_perimeter_, hig_dra_perimeter_km, hig_dra_axislength, hig_dra_circularity, hig_dra_compacity, hig_dra_shapefactor, hig_dra_formfactor, hig_drn_sinuosity, hig_dra_reliefratio, hig_dra_reachgradient, hig_dra_elevation_avg, hig_dra_elevation_max, hig_dra_elevation_min, hig_dra_elevationdrop_m, hig_dra_drainagedensity, hig_dra_hydrodensity, hig_dra_avglengthoverlandflow,
         hig_drn_length_, hig_drn_length_km, hig_drn_depth_m, hig_drn_width_m, hig_drn_elevationdrop_m, hig_drn_slope_adim, hig_drn_manning_n, hig_drn_velmann, hig_drn_celmann, hig_drn_trlmann, hig_drn_velmann_lr, hig_drn_celmann_lr, hig_drn_trlmann_lr, hig_drn_celdyna, hig_drn_trldyna,
         hig_upa_area_, hig_upa_area_km2, hig_upa_perimeter_, hig_upa_perimeter_km, hig_upa_drainagedensity, hig_upa_hydrodensity, hig_upa_avglengthoverlandflow, hig_upa_totaldrainagelength, hig_upa_axislength, hig_upa_circularity, hig_upa_compacity, hig_upa_shapefactor, hig_upa_formfactor, hig_upn_sinuosity, hig_upa_elevation_avg, hig_upa_elevation_max, hig_upa_elevation_min, hig_upa_elevationdrop_m, hig_upa_reliefratio, hig_upa_reachgradient,
+        
         hig_dra_tc_kirpich, hig_dra_tc_dooge, hig_dra_tc_carter, hig_dra_tc_armycorps, hig_dra_tc_wattchow,
-        hig_upa_tc_kirpich, hig_upa_tc_dooge, hig_upa_tc_carter, hig_upa_tc_armycorps, hig_upa_tc_wattchow,
-        hig_upn_elevation_avg, hig_upn_elevation_max, hig_upn_elevation_min, hig_upn_length_, hig_upn_length_km, hig_upn_elevationdrop_m, hig_upn_slope_adim, hig_upn_slope_maxmin, hig_upn_slope_s1585, hig_upn_slope_pipf, hig_upn_slope_z1585, hig_upn_slope_harmonic, hig_upn_slope_weighted, hig_upn_slope_linreg, hig_upn_elevationdrop_maxmin, hig_upn_elevationdrop_s1585, hig_upn_elevationdrop_pipf, hig_upn_elevationdrop_z1585, hig_upn_elevationdrop_harmonic, hig_upn_elevationdrop_weighted, hig_upn_elevationdrop_linreg,
+        hig_dra_tc_kirpicha, hig_dra_tc_georgeribeiro, hig_dra_tc_pasini, hig_dra_tc_ventura, hig_dra_tc_dnosk1,
+        
+        hig_upa_tc_kirpich, hig_upa_tc_dooge, hig_upa_tc_carter, hig_upa_tc_armycorps, hig_upa_tc_wattchow, hig_upa_tc_kirpicha,
+        hig_upa_tc_georgeribeiro, hig_upa_tc_pasini, hig_upa_tc_ventura, hig_upa_tc_dnosk1,
+        
+        hig_upn_elevation_avg, hig_upn_elevation_max, hig_upn_elevation_min, hig_upn_length_, hig_upn_length_km,
+        hig_upn_elevationdrop_m, hig_upn_slope_adim, hig_upn_slope_maxmin, hig_upn_slope_s1585, hig_upn_slope_pipf, hig_upn_slope_z1585, hig_upn_slope_harmonic, hig_upn_slope_weighted, hig_upn_slope_linreg, hig_upn_elevationdrop_maxmin, hig_upn_elevationdrop_s1585, hig_upn_elevationdrop_pipf, hig_upn_elevationdrop_z1585, hig_upn_elevationdrop_harmonic, hig_upn_elevationdrop_weighted, hig_upn_elevationdrop_linreg,
         hig_drn_annual_flow, hig_drn_event_flow, hig_drn_jobson_tpeak, hig_drn_jobson_tlead, hig_drn_jobson_tpeak_shortest, hig_drn_jobson_tlead_shortest,
         --hig_upn_gm, hig_upa_gm,
         hig_drn_reservoir_depth_m, hig_drn_reservoir_length_m,
