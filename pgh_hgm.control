@@ -1,6 +1,6 @@
  #pgh_hgm extension
 comment = 'pgh_hgm extension'
-default_version = '2.2.3'
+default_version = '2.2.4'
 encoding = 'latin1'
 requires = 'plpgsql'
 requires = 'postgis'
