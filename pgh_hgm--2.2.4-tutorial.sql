@@ -35,13 +35,14 @@ SELECT pgh_hgm.pghfn_tables_initialize();
 SELECT pgh_hgm.pghfn_prepro_calculate();
 
 -- declividades dos trechos
-SELECT pgh_hgm.pghfn_calculate_drn_slope_harmonic(55555, 5880);
-SELECT pgh_hgm.pghfn_calculate_drn_slope_linreg(55555, 5880);
 SELECT pgh_hgm.pghfn_calculate_drn_slope_maxmin(55555, 5880);
 SELECT pgh_hgm.pghfn_calculate_drn_slope_pipf(55555, 5880);
 SELECT pgh_hgm.pghfn_calculate_drn_slope_s1585(55555, 5880);
-SELECT pgh_hgm.pghfn_calculate_drn_slope_weighted(55555, 5880);
 SELECT pgh_hgm.pghfn_calculate_drn_slope_z1585(55555, 5880);
+SELECT pgh_hgm.pghfn_calculate_drn_slope_linreg(55555, 5880);
+SELECT pgh_hgm.pghfn_calculate_drn_slope_weighted(55555, 5880); 
+--SELECT pgh_hgm.pghfn_calculate_drn_slope_harmonic(55555, 5880); -- nao recomendada
+
 
 -- estatisticas do perfil de elevacao do trecho e elevation-drop
 SELECT pgh_hgm.pghfn_calculate_drn_elevationprofile_stats(55555, 5880);
@@ -99,13 +100,14 @@ SELECT pgh_hgm.pghfn_prepro_calculate_upa(55555, 5880);
 
 
 --- declividades do rio principal a montante
-SELECT pgh_hgm.pghfn_calculate_upn_slope_harmonic(55555, 5880); 
-SELECT pgh_hgm.pghfn_calculate_upn_slope_linreg(55555, 5880);
 SELECT pgh_hgm.pghfn_calculate_upn_slope_maxmin(55555, 5880); 
 SELECT pgh_hgm.pghfn_calculate_upn_slope_pipf(55555, 5880);
 SELECT pgh_hgm.pghfn_calculate_upn_slope_s1585(55555, 5880);
-SELECT pgh_hgm.pghfn_calculate_upn_slope_weighted(55555, 5880);
 SELECT pgh_hgm.pghfn_calculate_upn_slope_z1585(55555, 5880);
+SELECT pgh_hgm.pghfn_calculate_upn_slope_linreg(55555, 5880);
+SELECT pgh_hgm.pghfn_calculate_upn_slope_weighted(55555, 5880);
+-- SELECT pgh_hgm.pghfn_calculate_upn_slope_harmonic(55555, 5880); -- nao recomendada
+
 
 -- estatisticas do perfil de elevacao do rio a montante e elevation-drop
 SELECT pgh_hgm.pghfn_calculate_upn_elevationprofile_stats(55555, 5880);
