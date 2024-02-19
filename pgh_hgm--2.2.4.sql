@@ -41,7 +41,7 @@
 */
 
 ---------------------------------------------------------------------------------
---PGH_HGM: PgHydro Hydrological Geomorphology Calculations Extension - v.2.2.3 (2024.01.09)
+--PGH_HGM: PgHydro Hydrological Geomorphology Calculations Extension - v.2.2.4 (2024.02.19)
 ---------------------------------------------------------------------------------
 
 -------------------------------------
@@ -529,27 +529,32 @@ BEGIN
     RETURN
     QUERY
 
-    SELECT
-        dra_pk_ AS dra_pk,
-        a.xy,
-        a.z,
-        a.gm
-    FROM (
-        -- CALL PGH_RASTER
+    WITH raw_elevprof AS (
         SELECT
-            (pgh_raster.pghfn_elevation_profile(line_gm)).*  -- original spacing using pgh_raster
-            -- (pgh_raster.pghfn_elevation_profile(line_gm,60)).*    -- 60 m spacing using pgh_raster
-            --(pgh_hgm.pghfn_geom_elevationprofile(line_gm)).*  -- original spacing using pgh_hgm standalone function
-        FROM
-            (
-            -- PREPARE DRAINAGE POINTS (FROM DRAINAGE LINE) TO PGH_RASTER
+            dra_pk_ AS dra_pk,
+            a.xy,
+            a.z,
+            a.gm,
+            ROW_NUMBER() OVER( PARTITION BY a.xy) xy_idx
+        FROM (
+            -- CALL PGH_RASTER
             SELECT
-                ST_TRANSFORM( (ST_DUMP(drn_gm)).geom, srid_dem)    AS line_gm
-            FROM pghydro.pghft_drainage_area dra
-            INNER JOIN pghydro.pghft_drainage_line drn ON dra.dra_pk = drn.drn_dra_pk
-            WHERE dra.dra_pk = dra_pk_
+                (pgh_raster.pghfn_elevation_profile(line_gm)).*  -- original spacing using pgh_raster
+                -- (pgh_raster.pghfn_elevation_profile(line_gm,60)).*    -- 60 m spacing using pgh_raster
+                --(pgh_hgm.pghfn_geom_elevationprofile(line_gm)).*  -- original spacing using pgh_hgm standalone function
+            FROM
+                (
+                -- PREPARE DRAINAGE POINTS (FROM DRAINAGE LINE) TO PGH_RASTER
+                SELECT
+                    ST_TRANSFORM( (ST_DUMP(drn_gm)).geom, srid_dem)    AS line_gm
+                FROM pghydro.pghft_drainage_area dra
+                INNER JOIN pghydro.pghft_drainage_line drn ON dra.dra_pk = drn.drn_dra_pk
+                WHERE dra.dra_pk = dra_pk_
+                ) a
             ) a
-        ) a;
+    )
+    -- FILTER DUPLICATES
+    SELECT a.dra_pk, a.xy, a.z, a.gm FROM raw_elevprof a WHERE a.xy_idx = 1;
 
 RETURN;
 END;
@@ -639,6 +644,49 @@ $BODY$
         hig_dra_axislength_schumm, hig_dra_shapefactor_schumm, hig_dra_formfactor_schumm, hig_dra_reliefratio_schumm,
         hig_dra_axislength_ring, hig_dra_shapefactor_ring, hig_dra_formfactor_ring, hig_dra_reliefratio_ring,
         hig_dra_axislength_river, hig_dra_shapefactor_river, hig_dra_formfactor_river, hig_dra_reliefratio_river,
+        hig_upa_axislength_schumm, hig_upa_shapefactor_schumm, hig_upa_formfactor_schumm, hig_upa_reliefratio_schumm,
+        hig_upa_axislength_ring, hig_upa_shapefactor_ring, hig_upa_formfactor_ring, hig_upa_reliefratio_ring,
+        hig_upa_axislength_river, hig_upa_shapefactor_river, hig_upa_formfactor_river, hig_upa_reliefratio_river,
+        drn_gm  -- get drainage geometry
+    FROM pgh_hgm.pghft_hydro_intel hig
+    INNER JOIN pghydro.pghft_drainage_line drn ON hig_drn_pk = drn_pk;
+
+
+    CREATE OR REPLACE VIEW pgh_hgm.geoft_bho_hgm_dradrn AS
+    SELECT
+        hig_pk, hig_drn_pk, hig_dra_pk, hig_wtc_pk, hig_drn_strahler,
+        hig_drn_elevation_avg, hig_drn_elevation_max, hig_drn_elevation_min, hig_drn_elevationdrop_maxmin, hig_drn_elevationdrop_s1585, hig_drn_elevationdrop_pipf, hig_drn_elevationdrop_z1585, hig_drn_elevationdrop_harmonic, hig_drn_elevationdrop_weighted, hig_drn_elevationdrop_linreg, hig_drn_slope_maxmin, hig_drn_slope_s1585, hig_drn_slope_pipf, hig_drn_slope_z1585, hig_drn_slope_harmonic, hig_drn_slope_weighted, hig_drn_slope_linreg,
+        hig_dra_area_, hig_dra_area_km2, hig_dra_perimeter_, hig_dra_perimeter_km, hig_dra_axislength, hig_dra_circularity, hig_dra_compacity, hig_dra_shapefactor, hig_dra_formfactor, hig_drn_sinuosity, hig_dra_reliefratio, hig_dra_reachgradient, hig_dra_elevation_avg, hig_dra_elevation_max, hig_dra_elevation_min, hig_dra_elevationdrop_m, hig_dra_drainagedensity, hig_dra_hydrodensity, hig_dra_avglengthoverlandflow,
+        hig_drn_length_, hig_drn_length_km, hig_drn_depth_m, hig_drn_width_m, hig_drn_elevationdrop_m, hig_drn_slope_adim, hig_drn_manning_n, hig_drn_velmann, hig_drn_celmann, hig_drn_trlmann, hig_drn_velmann_lr, hig_drn_celmann_lr, hig_drn_trlmann_lr, hig_drn_celdyna, hig_drn_trldyna,        
+        hig_dra_tc_kirpich, hig_dra_tc_dooge, hig_dra_tc_carter, hig_dra_tc_armycorps, hig_dra_tc_wattchow,
+        hig_dra_tc_kirpicha, hig_dra_tc_georgeribeiro, hig_dra_tc_pasini, hig_dra_tc_ventura, hig_dra_tc_dnosk1,
+        
+        hig_drn_annual_flow, hig_drn_event_flow, hig_drn_jobson_tpeak, hig_drn_jobson_tlead, hig_drn_jobson_tpeak_shortest, hig_drn_jobson_tlead_shortest,
+        hig_drn_reservoir_depth_m, hig_drn_reservoir_length_m,
+        hig_drn_reservoir_celwave, hig_drn_reservoir_trlwave,
+        -- BONUS info
+        hig_dra_axislength_schumm, hig_dra_shapefactor_schumm, hig_dra_formfactor_schumm, hig_dra_reliefratio_schumm,
+        hig_dra_axislength_ring, hig_dra_shapefactor_ring, hig_dra_formfactor_ring, hig_dra_reliefratio_ring,
+        hig_dra_axislength_river, hig_dra_shapefactor_river, hig_dra_formfactor_river, hig_dra_reliefratio_river,
+        drn_gm  -- get drainage geometry
+    FROM pgh_hgm.pghft_hydro_intel hig
+    INNER JOIN pghydro.pghft_drainage_line drn ON hig_drn_pk = drn_pk;    
+
+
+    CREATE OR REPLACE VIEW pgh_hgm.geoft_bho_hgm_upaupn AS
+    SELECT
+        hig_pk, hig_drn_pk, hig_dra_pk, hig_wtc_pk        
+        hig_upa_area_, hig_upa_area_km2, hig_upa_perimeter_, hig_upa_perimeter_km, hig_upa_drainagedensity, hig_upa_hydrodensity, hig_upa_avglengthoverlandflow, hig_upa_totaldrainagelength, hig_upa_axislength, hig_upa_circularity, hig_upa_compacity, hig_upa_shapefactor, hig_upa_formfactor, hig_upn_sinuosity, hig_upa_elevation_avg, hig_upa_elevation_max, hig_upa_elevation_min, hig_upa_elevationdrop_m, hig_upa_reliefratio, hig_upa_reachgradient,
+        
+        hig_upa_tc_kirpich, hig_upa_tc_dooge, hig_upa_tc_carter, hig_upa_tc_armycorps, hig_upa_tc_wattchow, hig_upa_tc_kirpicha,
+        hig_upa_tc_georgeribeiro, hig_upa_tc_pasini, hig_upa_tc_ventura, hig_upa_tc_dnosk1,
+        
+        hig_upn_elevation_avg, hig_upn_elevation_max, hig_upn_elevation_min, hig_upn_length_, hig_upn_length_km,
+        hig_upn_elevationdrop_m, hig_upn_slope_adim, hig_upn_slope_maxmin, hig_upn_slope_s1585, hig_upn_slope_pipf, hig_upn_slope_z1585, hig_upn_slope_harmonic, hig_upn_slope_weighted, hig_upn_slope_linreg, hig_upn_elevationdrop_maxmin, hig_upn_elevationdrop_s1585, hig_upn_elevationdrop_pipf, hig_upn_elevationdrop_z1585, hig_upn_elevationdrop_harmonic, hig_upn_elevationdrop_weighted, hig_upn_elevationdrop_linreg,
+
+        --hig_upn_gm, hig_upa_gm,
+
+        -- BONUS info
         hig_upa_axislength_schumm, hig_upa_shapefactor_schumm, hig_upa_formfactor_schumm, hig_upa_reliefratio_schumm,
         hig_upa_axislength_ring, hig_upa_shapefactor_ring, hig_upa_formfactor_ring, hig_upa_reliefratio_ring,
         hig_upa_axislength_river, hig_upa_shapefactor_river, hig_upa_formfactor_river, hig_upa_reliefratio_river,
@@ -3561,6 +3609,238 @@ $BODY$
 
 
  
+-- FUNCTION: pgh_hgm.pghfn_calculate_upa_elevations_stats_agg()
+
+-- DROP FUNCTION IF EXISTS pgh_hgm.pghfn_calculate_upa_elevations_stats_agg();
+
+CREATE OR REPLACE FUNCTION pgh_hgm.pghfn_calculate_upa_elevations_stats_agg(
+	)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+AS $BODY$
+/*
+    CALCULATE UPSTREAM AREA - ELEVATIONS STATISTICS - DOWNSTREAM AGGREGATION/PROPAGATION METHOD
+
+    requires:
+        --hig_dra_elevation_max, hig_dra_elevation_min, hig_dra_elevation_avg
+
+*/
+
+
+--- BLOCO PRINCIPAL
+DECLARE
+    j integer := 0;
+    f RECORD;
+	_status integer :=0;
+	_conta integer :=0;
+
+BEGIN
+
+	BEGIN
+	
+	DROP TABLE IF EXISTS _tmp_intel_params;
+	DROP TABLE IF EXISTS _tmp_intel;		
+	
+	-- monta tabela inicial com "valencia dos trechos"
+	CREATE TEMPORARY TABLE _tmp_intel AS 
+	SELECT
+		drn.drn_pk,
+		drn.drn_drn_pk_downstreamdrainageline,
+		drn.drn_drp_pk_sourcenode,    
+		drp_nu_valence,
+		dra.dra_pk,
+		drn.drn_nu_upstreamarea,
+		-- colunas para agregar
+		dra.dra_gm_area,
+		hig.hig_dra_elevation_avg,
+		hig.hig_dra_elevation_max,
+		hig.hig_dra_elevation_min,
+		
+		-- colunas auxiliares para processamento
+		drp_nu_valence as drp_nu_valence_dum,
+		0  ::int as drn_status,
+		0  ::int as drn_count_nup,
+		
+		-- colunas para armazenar a agregagacao
+		0. ::double precision as dra_sumarea,
+		
+		0. ::double precision  as dra_sumeleva,
+		0. ::double precision as dra_maxeleva,
+		9999. ::double precision as dra_mineleva,
+		0. ::double precision as dra_wsumeleva
+		
+	FROM pghydro.pghft_drainage_line drn
+	INNER JOIN pghydro.pghft_drainage_point drp ON drn.drn_drp_pk_sourcenode = drp.drp_pk
+	INNER JOIN pghydro.pghft_drainage_area dra ON dra.dra_pk = drn.drn_dra_pk
+	INNER JOIN pghydro.pghft_drainage_line jus ON jus.drn_pk = drn.drn_drn_pk_downstreamdrainageline
+	INNER JOIN pgh_hgm.pghft_hydro_intel hig ON hig.hig_dra_pk = drn.drn_dra_pk;	
+	
+
+    -- tabela inicial de status de valencia
+	CREATE TEMPORARY TABLE _tmp_intel_params AS
+	SELECT
+		0 :: int AS status,
+		MAX(drp_nu_valence) ::int AS max_valence    
+    FROM _tmp_intel;	
+	
+	END;
+    
+	-- mostra a tabela
+    SELECT * INTO F FROM _tmp_intel_params;
+    RAISE NOTICE '%|%',f.status,f.max_valence;
+
+    -- LOOP PRINCIPAL
+    j :=1;
+    LOOP
+   
+   		SELECT j INTO _status;
+		SELECT COUNT(*) INTO _conta FROM _tmp_intel WHERE drp_nu_valence_dum  >= 1;
+		RAISE NOTICE '% drn with valences',_conta;
+   
+		-- passo 1:identifica cabeceiras "atuais" (valencia 1) e atualiza atributos
+		BEGIN		
+		UPDATE _tmp_intel
+		SET
+			dra_sumarea = dra_sumarea + dra_gm_area,
+			
+			dra_sumeleva = dra_sumeleva + hig_dra_elevation_avg,	
+			dra_maxeleva = GREATEST(dra_maxeleva, hig_dra_elevation_max),
+			dra_mineleva = LEAST(dra_mineleva, hig_dra_elevation_min),
+			dra_wsumeleva = dra_wsumeleva + hig_dra_elevation_avg*dra_gm_area,
+			
+			drn_count_nup = 1,   --trick para remover cabeceira dps
+			drn_status = _status
+		WHERE drp_nu_valence_dum = 1;
+		END;
+
+		-- passo 2:	identifica trechos logo a jusante, armazena atributos de agregacao de area de montante
+	
+		BEGIN		
+		WITH 
+		tble_joinjus AS (
+			SELECT
+				-- topologia
+				drn.drn_pk AS drn_ref,
+				jus.drn_pk AS drn_pk_jus,
+				-- variaveis para agregar
+				drn.dra_sumarea AS sumarea_ref,		
+				drn.dra_sumeleva AS sumeleva_ref,
+				drn.dra_maxeleva AS maxeleva_ref,
+				drn.dra_mineleva AS mineleva_ref,
+				drn.dra_wsumeleva AS wsumeleva_ref
+				
+			FROM _tmp_intel drn
+			INNER JOIN _tmp_intel jus
+			ON jus.drn_pk = drn.drn_drn_pk_downstreamdrainageline
+			WHERE drn.drp_nu_valence_dum = 1
+			ORDER BY jus.drn_pk
+		)
+		,
+		-- realiza o somatorio das areas logo a montante no trecho de jusante
+		tble_sumarea AS (
+			SELECT
+				count(*) AS count_nup, -- numero de trechos a montante, utilizado para descontar valencias dps.
+				drn_pk_jus,  -- id next downstream
+				
+				-- aplica a agregacao de montante para jusante
+				SUM(sumarea_ref) AS sum_area, -- somatorio de area dos trechos logo a montante
+				
+				SUM(sumeleva_ref) AS sum_eleva, -- somatorio de area dos trechos logo a montante
+				MAX(maxeleva_ref) AS max_eleva, -- somatorio de area dos trechos logo a montante
+				MIN(mineleva_ref) AS min_eleva, -- somatorio de area dos trechos logo a montante			
+				SUM(wsumeleva_ref) AS wsum_eleva -- somatorio de area dos trechos logo a montante
+
+				
+			FROM tble_joinjus
+			GROUP BY drn_pk_jus
+		)
+
+		-- atualiza somatorio de areas no trechos de jusante
+		UPDATE _tmp_intel drn
+		SET    
+			dra_sumarea = drn.dra_sumarea + tsa.sum_area,
+			
+			dra_sumeleva = drn.dra_sumeleva + tsa.sum_eleva,
+			dra_maxeleva = GREATEST( drn.dra_maxeleva, tsa.max_eleva ),
+			dra_mineleva = LEAST( drn.dra_mineleva, tsa.min_eleva ),	
+			dra_wsumeleva = drn.dra_wsumeleva + tsa.wsum_eleva,	
+			
+			drn_count_nup = tsa.count_nup,
+			drn_status = _status
+		FROM tble_sumarea tsa
+		WHERE drn.drn_pk = tsa.drn_pk_jus;
+		END;
+		
+		BEGIN
+		-- passo 3: aplica a reducao de valencias
+		UPDATE _tmp_intel
+		SET
+			drp_nu_valence_dum = drp_nu_valence_dum - drn_count_nup
+		WHERE drn_status = _status;     
+		END;
+		
+        
+		BEGIN
+		-- passo 4: atualiza status de parametros atuais	
+        INSERT INTO _tmp_intel_params(status, max_valence)
+        SELECT
+            _status :: int AS status,
+            MAX(drp_nu_valence_dum) ::int AS max_valence
+        FROM _tmp_intel;		
+		END;
+		
+
+        FOR f IN (SELECT * FROM _tmp_intel_params WHERE status = j)
+        LOOP
+            RAISE NOTICE '1 %|%',f.status,f.max_valence;
+        END LOOP; 
+
+        -- condicao de parada: valencia_maxima = 0
+        EXIT WHEN (
+            SELECT max_valence FROM _tmp_intel_params WHERE status = j
+			) = 0;
+      	
+		-- mostra na tela
+        FOR f IN (SELECT * FROM _tmp_intel_params WHERE status = j)
+        LOOP
+            RAISE NOTICE '2 %|%',f.status,f.max_valence;
+        END LOOP;
+		
+
+        -- proxima iteracao
+        j = j + 1;       
+        
+    END LOOP;
+	
+
+	-- atualiza tabela principal
+	UPDATE pgh_hgm.pghft_hydro_intel hout
+	SET
+		hig_upa_elevation_max = a.upa_elevation_max,
+		hig_upa_elevation_min = a.upa_elevation_min,
+		hig_upa_elevation_avg = a.upa_elevation_wavg,
+		hig_upa_elevationdrop_m = a.upa_elevation_max - a.upa_elevation_min
+	FROM (
+		SELECT
+			dra_pk,
+		 	dra_maxeleva as upa_elevation_max,
+			dra_mineleva as upa_elevation_min,
+			dra_sumeleva/tmp.drn_nu_upstreamarea as upa_elevation_avg,
+			dra_wsumeleva/tmp.drn_nu_upstreamarea as upa_elevation_wavg
+		FROM _tmp_intel tmp
+		INNER JOIN pgh_hgm.pghft_hydro_intel hig ON hig.hig_dra_pk = tmp.dra_pk
+	) a
+	WHERE hig_wtc_pk IS NOT NULL AND hig_drn_strahler  > 1 AND a.dra_pk = hout.hig_dra_pk;
+	
+
+    
+RETURN 'OK';
+END;
+$BODY$;
+
+
+
+ 
 CREATE OR REPLACE FUNCTION pgh_hgm.pghfn_calculate_upa_formfactor(
     srid_area integer,
     srid_length integer)
@@ -6254,7 +6534,7 @@ BEGIN
             16.*hig_drn_length_km/(1.05-0.2*(0.6))*(100.*hig_drn_slope_adim)^0.04 AS tc_georgeribeiro, --assuming p=0.6   
             (60)*0.107*(hig_dra_area_km2*hig_drn_length_km)^(1./3.)/((hig_drn_slope_adim)^0.5) AS tc_pasini,
             (60)*0.127*SQRT(hig_dra_area_km2/(hig_drn_slope_adim)) AS tc_ventura,
-            10./(1.0)*(hig_dra_area_km2^0.3)*(hig_drn_length_km^0.2)/((hig_drn_slope_adim)^0.4) AS tc_dnosk1 --assume K=1                  
+            10./(1.0)*(hig_dra_area_km2^0.3)*(hig_drn_length_km^0.2)/((100.*hig_drn_slope_adim)^0.4) AS tc_dnosk1 --assume K=1                  
         FROM
             pgh_hgm.pghft_hydro_intel
         WHERE hig_dra_pk = dra_pk_;
@@ -6435,7 +6715,7 @@ BEGIN
         MAX(z) AS elevation_max,
         MIN(z) AS elevation_min,
         MAX(z) - MIN(z) AS elevationdrop_maxmin,
-        (MAX(z) - MIN(z))/MAX(xy) AS slope_maxmin
+        (MAX(z) - MIN(z))/NULLIF(MAX(xy),0) AS slope_maxmin
     FROM 
         pgh_hgm.pghfn_drn_elevationprofile(dra_pk_)
             
@@ -6721,7 +7001,7 @@ RETURN
 QUERY
 
 SELECT
-    ( MAX(z)-MIN(z))/MAX(xy) AS slope_maxmin
+    ( MAX(z)-MIN(z))/NULLIF(MAX(xy),0) AS slope_maxmin
 FROM 
      pgh_hgm.pghfn_drn_elevationprofile(dra_pk_)
 RETURN;
@@ -6755,7 +7035,7 @@ RETURN
 QUERY
 
 SELECT
-    -(z_pf - z_pi)/(xy_pf - xy_pi) AS slope_pipf
+    -(z_pf - z_pi)/NULLIF((xy_pf - xy_pi),0) AS slope_pipf
 FROM (
     -- ORGANIZE THE INFORMATION IN ONE LINE
     SELECT
@@ -6839,7 +7119,7 @@ LIMIT 1
 -- QUERY SLOPE CALCULATION
 -- negative sign adjust reference por positive downslope
 SELECT
-    -(z2-z1)/((xy2-xy1)) AS slope_S1585 
+    -(z2-z1)/NULLIF((xy2-xy1),0) AS slope_S1585 
 FROM tb_percZ;
 
 RETURN;
@@ -6931,7 +7211,7 @@ SELECT
     slope_Z1585_ AS slope_Z1585
 FROM (
     SELECT
-        (zu - zl)/profile_length AS slope_Z1585_
+        (zu - zl)/NULLIF(profile_length,0) AS slope_Z1585_
     FROM (
         SELECT
             percentile_cont(0.15) WITHIN GROUP(ORDER BY z) AS zl,
@@ -6979,7 +7259,7 @@ BEGIN
         MAX(z) AS elevation_max,
         MIN(z) AS elevation_min,
         MAX(z) - MIN(z) AS elevationdrop_maxmin,
-        (MAX(z) - MIN(z))/MAX(xy) AS slope_maxmin    
+        (MAX(z) - MIN(z))/NULLIF(MAX(xy),0)AS slope_maxmin    
     FROM pgh_hgm.pghft_drn_elevationprofile
     WHERE dra_pk = dra_pk_;
 
@@ -7129,7 +7409,7 @@ BEGIN
     QUERY
 
     SELECT
-        ( MAX(z) - MIN(z))/MAX(xy) AS slope_maxmin
+        ( MAX(z) - MIN(z))/NULLIF(MAX(xy),0) AS slope_maxmin
     FROM pgh_hgm.pghft_drn_elevationprofile
     WHERE dra_pk = dra_pk_;
 
@@ -7158,7 +7438,7 @@ BEGIN
     QUERY
 
     SELECT
-        -(z_pf - z_pi)/(xy_pf - xy_pi) AS slope_pipf
+        -(z_pf - z_pi)/NULLIF((xy_pf - xy_pi),0) AS slope_pipf
     FROM (
         -- ORGANIZE THE INFORMATION IN ONE LINE
         SELECT
@@ -7240,7 +7520,7 @@ BEGIN
     -- QUERY SLOPE CALCULATION
     -- negative sign adjust reference por positive downslope
     SELECT
-        -(z2-z1)/((xy2-xy1)) AS slope_S1585 
+        -(z2-z1)/NULLIF((xy2-xy1),0) AS slope_S1585 
     FROM tb_percZ;
     RETURN;
 
@@ -7320,7 +7600,7 @@ BEGIN
         slope_Z1585_ AS slope_Z1585
     FROM (
         SELECT
-            (zu - zl)/profile_length  AS slope_Z1585_
+            (zu - zl)/NULLIF(profile_length,0)  AS slope_Z1585_
         FROM 
             (SELECT
                 percentile_cont(0.15) WITHIN GROUP(ORDER BY z) AS zl,
@@ -7675,6 +7955,7 @@ DECLARE
     i integer;
     imin integer;
     imax integer;
+    cur_wtc integer;
 
 BEGIN
 
@@ -7697,22 +7978,31 @@ BEGIN
     FOR i IN imin..imax LOOP
         
         RAISE NOTICE 'BEGIN OF PROCESS %/%: %', i,imax,timeofday();
+
+
+        -- IGNORE COASTLINE
+        SELECT hig_wtc_pk INTO cur_wtc
+        FROM pgh_hgm.pghft_hydro_intel WHERE hig_dra_pk = i ;
+
+        IF (cur_wtc IS NOT NULL) THEN
         
-        ----------------------------------------------------------------
-        -- INSERT ELEVATION PROFILE AT 'pgh_hgm.pghft_upn_elevationprofile'
-        ----------------------------------------------------------------
-        PERFORM pgh_hgm.pghfn_utils_tmp_elevprof_getinsert(i,'drn');
+            ----------------------------------------------------------------
+            -- INSERT ELEVATION PROFILE AT 'pgh_hgm.pghft_upn_elevationprofile'
+            ----------------------------------------------------------------
+            PERFORM pgh_hgm.pghfn_utils_tmp_elevprof_getinsert(i,'drn');
 
 
-        ----------------------------------------------------------------
-        -- DEFAULTS FOR DRAINAGE LINE
-        ----------------------------------------------------------------
-        PERFORM pgh_hgm.pghfn_utils_drn_hydraulics_defaults(i);   
+            ----------------------------------------------------------------
+            -- DEFAULTS FOR DRAINAGE LINE
+            ----------------------------------------------------------------
+            PERFORM pgh_hgm.pghfn_utils_drn_hydraulics_defaults(i);   
 
-        ------------------------------------------------------
-        -- CALCULATE/UPDATE ATTRIBUTE
-        ------------------------------------------------------
-        --...
+            ------------------------------------------------------
+            -- CALCULATE/UPDATE ATTRIBUTE
+            ------------------------------------------------------
+            --...
+        
+        END IF;
 
    
     -- FINISH
@@ -7760,6 +8050,7 @@ DECLARE
     i integer;
     imin integer;
     imax integer;
+    cur_wtc integer;
 
 BEGIN
 
@@ -7783,33 +8074,41 @@ BEGIN
 
         RAISE NOTICE 'BEGIN OF PROCESS %/%: %', i,imax,timeofday();
 
-        ----------------------------------------------------------------
-        -- MAKE AND STORE UPSTREAM GEOMETRIES IN HYDRO_INTEL
-        ----------------------------------------------------------------
-        PERFORM pgh_hgm.pghfn_utils_mergedgeometries_getupdate(i,srid_area,srid_length);
-        
-        ----------------------------------------------------------------
-        -- INSERT INTO TEMPORARY TABLE 'pgh_hgm.pghft_upn_elevationprofile'
-        ----------------------------------------------------------------
-        PERFORM pgh_hgm.pghfn_utils_tmp_elevprof_getinsert(i,'upn');
+        -- IGNORE COASTLINE
+        SELECT hig_wtc_pk INTO cur_wtc
+        FROM pgh_hgm.pghft_hydro_intel WHERE hig_dra_pk = i ;
 
-        
-        ----------------------------------------------------------------
-        -- DEFAULTS FOR MAIN UPSTREAM RIVER
-        ----------------------------------------------------------------
-        PERFORM pgh_hgm.pghfn_utils_upn_hydraulics_defaults(i);
+        IF (cur_wtc IS NOT NULL) THEN
 
-        ------------------------------------------------------
-        -- CALCULATE/UPDATE ATTRIBUTE
-        ------------------------------------------------------
+            ----------------------------------------------------------------
+            -- MAKE AND STORE UPSTREAM GEOMETRIES IN HYDRO_INTEL
+            ----------------------------------------------------------------
+            PERFORM pgh_hgm.pghfn_utils_mergedgeometries_getupdate(i,srid_area,srid_length);
+            
+            ----------------------------------------------------------------
+            -- INSERT INTO TEMPORARY TABLE 'pgh_hgm.pghft_upn_elevationprofile'
+            ----------------------------------------------------------------
+            PERFORM pgh_hgm.pghfn_utils_tmp_elevprof_getinsert(i,'upn');
 
-        --...
+            
+            ----------------------------------------------------------------
+            -- DEFAULTS FOR MAIN UPSTREAM RIVER
+            ----------------------------------------------------------------
+            PERFORM pgh_hgm.pghfn_utils_upn_hydraulics_defaults(i);
 
-        ----------------------------------------------------------------
-        -- NULLIFY UPSTREAM GEOMETRIES WHICH ARE STORED IN HYDRO_INTEL TO SAVE MEMORY
-        ----------------------------------------------------------------
-        -- ACTIVATE THIS IF REQUIRED
-        -- PERFORM pgh_hgm.pghfn_utils_mergedgeometries_nullify(i);
+            ------------------------------------------------------
+            -- CALCULATE/UPDATE ATTRIBUTE
+            ------------------------------------------------------
+
+            --...
+
+            ----------------------------------------------------------------
+            -- NULLIFY UPSTREAM GEOMETRIES WHICH ARE STORED IN HYDRO_INTEL TO SAVE MEMORY
+            ----------------------------------------------------------------
+            -- ACTIVATE THIS IF REQUIRED
+            -- PERFORM pgh_hgm.pghfn_utils_mergedgeometries_nullify(i);
+
+        END IF;
         
     END LOOP;
 
@@ -9128,7 +9427,7 @@ BEGIN
             16.*hig_upn_length_km/(1.05-0.2*(0.6))*(100.*hig_upn_slope_adim)^0.04 AS tc_georgeribeiro, --assuming p=0.6
             (60)*0.107*(hig_upa_area_km2*hig_upn_length_km)^(1./3.)/((hig_upn_slope_adim)^0.5) AS tc_pasini,
             (60)*0.127*SQRT(hig_upa_area_km2/(hig_upn_slope_adim)) AS tc_ventura,
-            10./(1.0)*(hig_upa_area_km2^0.3)*(hig_upn_length_km^0.2)/((hig_upn_slope_adim)^0.4) AS tc_dnosk1 --assume K=1        
+            10./(1.0)*(hig_upa_area_km2^0.3)*(hig_upn_length_km^0.2)/((100.*hig_upn_slope_adim)^0.4) AS tc_dnosk1 --assume K=1        
         FROM
             pgh_hgm.pghft_hydro_intel
         WHERE hig_dra_pk = dra_pk_;
@@ -9281,17 +9580,24 @@ BEGIN
 
     --main query
     RETURN QUERY
-    SELECT
-        dra_pk_ as dra_pk,
-        (pgh_raster.pghfn_elevation_profile(line_gm)).*  -- original spacing using pgh_raster
-        -- (pgh_raster.pghfn_elevation_profile(line_gm,60)).*    -- 60 m spacing using pgh_raster
-        --(pgh_hgm.pghfn_geom_elevationprofile(line_gm)).*  -- original spacing using pgh_hgm standalone function
-    FROM
-        (
-        SELECT ST_TRANSFORM( (ST_DUMP(hig_upn_gm)).geom, srid_dem)    AS line_gm  
-        FROM pgh_hgm.pghft_hydro_intel
-        WHERE hig_dra_pk = dra_pk_
-        ) a;
+
+    WITH raw_elevprof AS (    
+        SELECT
+            ROW_NUMBER() OVER( PARTITION BY xy) xy_idx,
+            dra_pk_ as dra_pk,
+            (pgh_raster.pghfn_elevation_profile(line_gm)).*  -- original spacing using pgh_raster
+            -- (pgh_raster.pghfn_elevation_profile(line_gm,60)).*    -- 60 m spacing using pgh_raster
+            --(pgh_hgm.pghfn_geom_elevationprofile(line_gm)).*  -- original spacing using pgh_hgm standalone function
+        FROM
+            (
+            SELECT ST_TRANSFORM( (ST_DUMP(hig_upn_gm)).geom, srid_dem)    AS line_gm  
+            FROM pgh_hgm.pghft_hydro_intel
+            WHERE hig_dra_pk = dra_pk_
+            ) a
+    )
+
+    -- FILTER DUPLICATES
+    SELECT a.dra_pk, a.xy, a.z, a.gm FROM raw_elevprof a WHERE a.xy_idx = 1;
 
     RETURN;
 END;
@@ -9333,23 +9639,30 @@ BEGIN
     WHERE r_table_schema = 'pgh_raster' AND r_table_name = 'pghrt_elevation';
 
     RETURN QUERY
-    SELECT
-        dra_pk_ AS dra_pk,
-        a.xy,
-        a.z,
-        a.gm
-    FROM (
-        -- CALL PGH_RASTER
+
+    WITH raw_elevprof AS (      
         SELECT
-            (pgh_raster.pghfn_elevation_profile(line_gm)).*  -- original spacing using pgh_raster
-            -- (pgh_raster.pghfn_elevation_profile(line_gm,60)).*    -- 60 m spacing using pgh_raster
-            --(pgh_hgm.pghfn_geom_elevationprofile(line_gm)).*  -- original spacing using pgh_hgm standalone function
-        FROM
-            (
-            SELECT ST_TRANSFORM( (ST_DUMP(upn_gm)).geom, srid_dem)    AS line_gm  
-            FROM pgh_hgm.pghfn_upa_merge_maindrainagelines(dra_pk_, to_srid_drn)
-            ) a
-    ) a;
+            dra_pk_ AS dra_pk,
+            a.xy,
+            a.z,
+            a.gm,
+            ROW_NUMBER() OVER( PARTITION BY a.xy) xy_idx
+        FROM (
+            -- CALL PGH_RASTER
+            SELECT
+                (pgh_raster.pghfn_elevation_profile(line_gm)).*  -- original spacing using pgh_raster
+                -- (pgh_raster.pghfn_elevation_profile(line_gm,60)).*    -- 60 m spacing using pgh_raster
+                --(pgh_hgm.pghfn_geom_elevationprofile(line_gm)).*  -- original spacing using pgh_hgm standalone function
+            FROM
+                (
+                SELECT ST_TRANSFORM( (ST_DUMP(upn_gm)).geom, srid_dem)    AS line_gm  
+                FROM pgh_hgm.pghfn_upa_merge_maindrainagelines(dra_pk_, to_srid_drn)
+                ) a
+        ) a
+    )
+
+    -- FILTER DUPLICATES
+    SELECT a.dra_pk, a.xy, a.z, a.gm FROM raw_elevprof a WHERE a.xy_idx = 1;
 
     RETURN;
 END;
@@ -9389,7 +9702,7 @@ BEGIN
         MAX(z) AS elevation_max,
         MIN(z) AS elevation_min,
         MAX(z) - MIN(z) AS elevationdrop_maxmin,
-        (MAX(z) - MIN(z))/MAX(xy) AS slope_maxmin
+        (MAX(z) - MIN(z))/NULLIF(MAX(xy),0) AS slope_maxmin
     FROM 
         (
         SELECT xy,z
@@ -9537,7 +9850,7 @@ BEGIN
     QUERY
 
     SELECT
-        ( MAX(z)-MIN(z))/MAX(xy) AS slope_maxmin
+        ( MAX(z)-MIN(z))/NULLIF(MAX(xy),0) AS slope_maxmin
     FROM 
         pgh_hgm.pghfn_upn_elevationprofile(dra_pk_)
     RETURN;
@@ -9577,7 +9890,7 @@ BEGIN
         MAX(z) AS elevation_max,
         MIN(z) AS elevation_min,
         MAX(z) - MIN(z) AS elevationdrop_maxmin,
-        (MAX(z) - MIN(z))/MAX(xy) AS slope_maxmin
+        (MAX(z) - MIN(z))/NULLIF(MAX(xy),0) AS slope_maxmin
     FROM pgh_hgm.pghft_upn_elevationprofile
     WHERE dra_pk = dra_pk_;
     
@@ -9732,7 +10045,7 @@ BEGIN
     QUERY
 
     SELECT
-        ( MAX(z)-MIN(z))/MAX(xy) AS slope_maxmin
+        ( MAX(z)-MIN(z))/NULLIF(MAX(xy),0) AS slope_maxmin
     FROM pgh_hgm.pghft_upn_elevationprofile
     WHERE dra_pk = dra_pk_;
 
@@ -9764,7 +10077,7 @@ BEGIN
     QUERY
 
     SELECT
-        -(z_pf - z_pi)/(xy_pf - xy_pi) AS slope_pipf
+        -(z_pf - z_pi)/NULLIF((xy_pf - xy_pi),0) AS slope_pipf
     FROM (
         -- ORGANIZE THE INFORMATION IN ONE LINE
         SELECT
@@ -9847,7 +10160,7 @@ BEGIN
     -- QUERY SLOPE CALCULATION
     -- negative sign adjust reference por positive downslope
     SELECT
-        -(z2-z1)/((xy2-xy1)) AS slope_S1585 
+        -(z2-z1)/NULLIF((xy2-xy1),0) AS slope_S1585 
     FROM tb_percZ;
 
     RETURN;
@@ -9933,7 +10246,7 @@ BEGIN
             slope_Z1585_ AS slope_Z1585
         FROM (
             SELECT
-                (zu - zl)/profile_length AS slope_Z1585_
+                (zu - zl)/NULLIF(profile_length,0) AS slope_Z1585_
             FROM (
                 SELECT
                     PERCENTILE_CONT(0.15) WITHIN GROUP(ORDER BY z) AS zl,
@@ -9976,7 +10289,7 @@ BEGIN
     UPDATE pgh_hgm.pghft_hydro_intel
     SET
         hig_drn_manning_n = 0.035
-    WHERE hig_dra_pk = dra_pk_;
+    WHERE hig_dra_pk=dra_pk_ AND hig_wtc_pk IS NOT NULL;
 
 
     -- DRAINAGE SLOPE AND ELEVATION DROP (BASED ON MAXMIN)
@@ -9988,7 +10301,7 @@ BEGIN
             SELECT *
             FROM pgh_hgm.pghfn_drn_elevationprofile_stats(dra_pk_)
             ) a
-    WHERE hig_dra_pk=dra_pk_;
+    WHERE hig_dra_pk=dra_pk_ AND hig_wtc_pk IS NOT NULL;
 
 
     -- DEPTH
@@ -10000,7 +10313,7 @@ BEGIN
         FROM
             pgh_hgm.pghfn_drn_amhg_depthfromarea(dra_pk_,1.)
         ) a
-    WHERE hig_dra_pk = dra_pk_;   
+    WHERE hig_dra_pk=dra_pk_ AND hig_wtc_pk IS NOT NULL;   
 
     -- WIDTH
     UPDATE pgh_hgm.pghft_hydro_intel
@@ -10011,7 +10324,7 @@ BEGIN
         FROM
             pgh_hgm.pghfn_drn_amhg_widthfromarea(dra_pk_,1.)
         ) a
-    WHERE hig_dra_pk = dra_pk_;
+    WHERE hig_dra_pk=dra_pk_ AND hig_wtc_pk IS NOT NULL;
 
     RETURN 'OK';        
    
@@ -10045,13 +10358,13 @@ BEGIN
     UPDATE pgh_hgm.pghft_hydro_intel
     SET
         hig_drn_annual_flow = 0.025* hig_upa_area_km2
-    WHERE hig_dra_pk = dra_pk_;     
+    WHERE hig_dra_pk=dra_pk_ AND hig_wtc_pk IS NOT NULL;     
 
     -- EVENT FLOW (m3/s) ASSUMING 100% OF ANNUAL MEAN FLOW
     UPDATE pgh_hgm.pghft_hydro_intel
     SET
         hig_drn_event_flow = 1.* hig_drn_annual_flow
-    WHERE hig_dra_pk = dra_pk_;  
+    WHERE hig_dra_pk=dra_pk_ AND hig_wtc_pk IS NOT NULL; 
 
     RETURN 'OK';
 
@@ -10447,7 +10760,7 @@ BEGIN
             slope_maxmin
         FROM pgh_hgm.pghfn_upn_elevationprofile_stats(dra_pk_)
         ) a
-    WHERE hig_dra_pk = dra_pk_; 
+    WHERE hig_dra_pk=dra_pk_ AND hig_wtc_pk IS NOT NULL; 
     
 RETURN 'OK';
    
