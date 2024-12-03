@@ -36,6 +36,7 @@ Postgresql 9.1+
 	psql mydatabase -c "CREATE EXTENSION postgis_raster"
 	psql mydatabase -c "CREATE EXTENSION pghydro"
 	psql mydatabase -c "CREATE EXTENSION pgh_raster"
+	psql mydatabase -c "CREATE EXTENSION pgh_hgm"
 	psql mydatabase -c "CREATE EXTENSION pgh_consistency"
 	psql mydatabase -c "CREATE EXTENSION pgh_output"
 	
