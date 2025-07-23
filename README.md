@@ -1,5 +1,5 @@
 # PGHYDRO - PostgreSQL/PostGIS extension for Water Resources Decision Making
-PgHydro extends the PostGIS/PostgreSQL geospatial database to provide drainage network analysis functionality to support decision making in Water Resources.
+PgHydro extends the PostGIS/PostgreSQL geospatial database to provide drainage network analysis functionality, supporting decision-making in Water Resources.
 
 # STATUS
 
@@ -11,9 +11,13 @@ The develop branch has the next minor release. (6.7-dev)
 
 # INTRODUCTION
 
-PgHydro extends the PostGIS/PostgreSQL geospatial database to provide drainage network analysis functionality to support decision making in Water Resources.
+PgHydro extends the PostGIS/PostgreSQL geospatial database to provide drainage network analysis functionality, supporting decision-making in Water Resources.
 
 Hydrographic objects are all  tables, constrains, procedures, queries, functions or views developed in PostGIS/PostgreSQL in order to build a consistent river network and calculates the correct direction of flow vector water, Otto Pfafstetter’s basin coding system, selection of  upstream/downstream stretches, distance to the the mouth of the basin, upstream calculation area, river orders, basin levels, and other information to assist in decision making in water resources.
+
+The pgh_raster extension uses the hydrological products derived from the Digital Elevation Model.
+
+The pgh_hgm extension utilizes the pghydro and pgh_raster extensions to calculate hydrogeomorphological features using the digital elevation model and drainage line and area geometries. 
 
 # REQUIREMENTS
 
